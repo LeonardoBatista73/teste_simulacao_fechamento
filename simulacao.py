@@ -13,7 +13,7 @@ with top2:
     )
 
 st.markdown(
-    f"<h1 style='text-align: center;'>📊 Simulação de Fechamento | {cenario}  </h1>",
+    f"<h2 style='text-align: center;'>📊 Simulação de Fechamento | {cenario}  </h2>",
     unsafe_allow_html=True)
 
 st.write('')

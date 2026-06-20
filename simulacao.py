@@ -1,23 +1,88 @@
 import streamlit as st
+from fpdf import FPDF
 
 # Configura a página do Streamlit para tela cheia
 st.set_page_config(layout="wide")
 
-# Título principal da página
-st.title("📊 Painel Semanal Interativo")
-st.markdown("### Primeira semana VA")
+top1, top2, top3 = st.columns([1, 2, 1])
+
+with top2:
+    cenario = st.selectbox(
+        "⚙️ Cenário",
+        ["100 mil", "110 mil", "120 mil"]
+    )
+
+st.markdown(
+    f"<h1 style='text-align: center;'>📊 Simulação de Fechamento | {cenario}  </h1>",
+    unsafe_allow_html=True)
+
+st.write('')
+
+info1, info2 = st.columns(2)
+with info1:
+    st.markdown("""
+    <div style="
+        background-color: #107acc;
+        border-left: 5px solid #107acc;
+        padding: 8px;
+        font-size: 20px;
+        border-radius: 5px;
+        margin: 8px 0;
+    ">
+        <h4 style="margin-top:0;">ℹ️ Informações</h4>
+        <p>
+            Cada círculo = 10.000 endereços
+        </p>
+        <p>
+            Total de volume carregado = 80.000 endereços | Equivalente a produzidos 100.000 endereços
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with info2:
+    st.markdown("""
+    <div style="
+        background-color: #107acc;
+        border-left: 5px solid #107acc;
+        padding: 8px;
+        border-radius: 5px;
+        margin: 8px 0;
+        font-size: 20px;
+        line-height: 1.65;
+    ">
+        <p>
+            🟡: Fechamento de SP (⏰18:00)
+        </p>
+        <p>
+            🔵: Fechamento de outros estados (⏰18:30)
+        </p>
+        <p>
+            🟠: Fechamento de Londrina (⏰18:01)
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.write('')
+st.write('')
 
 # Inicializa o estado das bolinhas nos campos se não existir
 if "bolinhas" not in st.session_state:
     st.session_state.bolinhas = {
         "seg_dia": ["Vazio"] * 4,
-        "seg_noite": ["Vazio"] * 6,
+        "seg_noite": ["Vazio"] * 4,
         "ter_dia": ["Vazio"] * 4,
-        "ter_noite": ["Vazio"] * 6,
+        "ter_noite": ["Vazio"] * 4,
+        "qua_dia": ["Vazio"] * 4,
+        "qua_noite": ["Vazio"] * 4,
+        "qui_dia": ["Vazio"] * 4,
+        "qui_noite": ["Vazio"] * 4,
+        "sex_dia": ["Vazio"] * 4,
+        "sex_noite": ["Vazio"] * 4,
+        "sabado": ["Vazio"] * 4
     }
 
 # Cria a estrutura de colunas na tela para organizar lado a lado
-col_label, col_seg, col_regiao, col_ter = st.columns([1, 4, 2, 4])
+col_label, col_seg, col_ter, col_qua, col_qui, col_sex, col_sab = st.columns([0.3, 1, 1, 1, 1, 1, 1])
 
 # --- COLUNA DA ESQUERDA: RÓTULOS DOS TURNOS ---
 with col_label:
@@ -26,14 +91,28 @@ with col_label:
 
 # --- COLUNA: SEGUNDA-FEIRA ---
 with col_seg:
-    st.subheader("segunda 04/01")
-    
+    col_titulo_seg, col_data_seg = st.columns([2, 3])
+
+    with col_titulo_seg:
+        st.markdown(
+            "<div style='margin-top:8px;'><b>Segunda-feira</b></div>",
+            unsafe_allow_html=True
+        )
+
+    with col_data_seg:
+        data_seg = st.date_input(
+            "",
+            key="data_seg",
+            format="DD/MM/YYYY",
+            label_visibility="collapsed"
+        )
+   
     # Caixa do turno do Dia (Segunda)
     with st.container(border=True):
         c1, c2 = st.columns(2)
         for i in range(4):
             col_alvo = c1 if i % 2 == 0 else c2
-            opcao = col_alvo.selectbox(f"Seg Dia P{i+1}", ["Vazio", "🟡 Amarela", "🔵 Azul", "🟠 Laranja"], key=f"s_d_{i}", label_visibility="collapsed")
+            opcao = col_alvo.selectbox(f"Seg Dia P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"s_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["seg_dia"][i] = opcao
 
     st.write(" ") # Espaçador
@@ -41,56 +120,69 @@ with col_seg:
     # Caixa do turno da Noite (Segunda)
     with st.container(border=True):
         c1, c2 = st.columns(2)
-        for i in range(6):
+        for i in range(4):
             col_alvo = c1 if i % 2 == 0 else c2
-            opcao = col_alvo.selectbox(f"Seg Noite P{i+1}", ["Vazio", "🟡 Amarela", "🔵 Azul", "🟠 Laranja"], key=f"s_n_{i}", label_visibility="collapsed")
+            opcao = col_alvo.selectbox(f"Seg Noite P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"s_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["seg_noite"][i] = opcao
 
     # --- CÁLCULO DO ESTOQUE DA SEGUNDA ---
     # Conta quantas de cada cor foram usadas na segunda (somando dia e noite)
     todas_seg = st.session_state.bolinhas["seg_dia"] + st.session_state.bolinhas["seg_noite"]
-    usadas_amarela_seg = todas_seg.count("🟡 Amarela")
-    usadas_laranja_seg = todas_seg.count("🟠 Laranja")
-    usadas_azul_seg = todas_seg.count("🔵 Azul")
+    usadas_amarela_seg = todas_seg.count("🟡")
+    usadas_laranja_seg = todas_seg.count("🟠")
+    usadas_azul_seg = todas_seg.count("🔵")
 
     # Estoque Inicial da Imagem: 5 Amarelas, 1 Laranja, 6 Azuis
-    saldo_amarela_seg = max(0, 5 - usadas_amarela_seg)
+    saldo_amarela_seg = max(0, 4 - usadas_amarela_seg)
     saldo_laranja_seg = max(0, 1 - usadas_laranja_seg)
-    saldo_azul_seg = max(0, 6 - usadas_azul_seg)
+    saldo_azul_seg = max(0, 5 - usadas_azul_seg)
 
     # Exibição dos Dados e do Estoque Atualizado de Segunda
     st.write("---")
     cd1, cd2 = st.columns(2)
     with cd1:
-        st.code("39117\n12433\n49165\n100715")
+        st.markdown("**Segunda-feira**")
+
+        valor1_seg_sp = st.number_input("SP    ", value=0)
+        valor2_seg_pr = st.number_input("PR    ", value=0)
+        valor3_seg_outros = st.number_input("RS/SC/MG/RJ    ", value=0)
+
+        st.metric("Total Dia", f"{valor1_seg_sp + valor2_seg_pr + valor3_seg_outros:,}".replace(",", "."))
+
     with cd2:
         st.markdown("**Restante:**")
         # Monta a linha visual das bolinhas restantes
         linha_amarela = "🟡 " * saldo_amarela_seg
         linha_laranja = "🟠 " * saldo_laranja_seg
         linha_azul = "🔵 " * saldo_azul_seg
-        
+       
         st.write(f"{linha_amarela}{linha_laranja}" if (linha_amarela or linha_laranja) else "Sem amarelas/laranjas")
         st.write(f"{linha_azul}" if linha_azul else "Sem azuis")
 
-# --- COLUNA CENTRAL: IDENTIFICADORES DE REGIÃO ---
-with col_regiao:
-    st.write("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
-    st.markdown("**SP**")
-    st.markdown("**PR**")
-    st.markdown("**RS/SC/MG/RJ**")
-    st.markdown("**Total Dia**")
-
 # --- COLUNA: TERÇA-FEIRA ---
 with col_ter:
-    st.subheader("terça 05/01")
-    
+    col_titulo_ter, col_data_ter = st.columns([2, 3])
+
+    with col_titulo_ter:
+        st.markdown(
+            "<div style='margin-top:8px;'><b>Terça-feira</b></div>",
+            unsafe_allow_html=True
+        )
+
+    with col_data_ter:
+        data_ter = st.date_input(
+            "",
+            key="data_ter",
+            format="DD/MM/YYYY",
+            label_visibility="collapsed"
+        )
+   
     # Caixa do turno do Dia (Terça)
     with st.container(border=True):
         c1, c2 = st.columns(2)
         for i in range(4):
             col_alvo = c1 if i % 2 == 0 else c2
-            opcao = col_alvo.selectbox(f"Ter Dia P{i+1}", ["Vazio", "🟡 Amarela", "🔵 Azul", "🟠 Laranja"], key=f"t_d_{i}", label_visibility="collapsed")
+            opcao = col_alvo.selectbox(f"Ter Dia P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"t_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["ter_dia"][i] = opcao
 
     st.write(" ") # Espaçador
@@ -98,33 +190,302 @@ with col_ter:
     # Caixa do turno da Noite (Terça)
     with st.container(border=True):
         c1, c2 = st.columns(2)
-        for i in range(6):
+        for i in range(4):
             col_alvo = c1 if i % 2 == 0 else c2
-            opcao = col_alvo.selectbox(f"Ter Noite P{i+1}", ["Vazio", "🟡 Amarela", "🔵 Azul", "🟠 Laranja"], key=f"t_n_{i}", label_visibility="collapsed")
+            opcao = col_alvo.selectbox(f"Ter Noite P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"t_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["ter_noite"][i] = opcao
 
     # --- CÁLCULO DO ESTOQUE DA TERÇA ---
     # Conta quantas de cada cor foram usadas na terça
     todas_ter = st.session_state.bolinhas["ter_dia"] + st.session_state.bolinhas["ter_noite"]
-    usadas_amarela_ter = todas_ter.count("🟡 Amarela")
-    usadas_laranja_ter = todas_ter.count("🟠 Laranja")
-    usadas_azul_ter = todas_ter.count("🔵 Azul")
+    usadas_amarela_ter = todas_ter.count("🟡")
+    usadas_laranja_ter = todas_ter.count("🟠")
+    usadas_azul_ter = todas_ter.count("🔵")
 
     # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
-    saldo_amarela_ter = max(0, 5 - usadas_amarela_ter)
+    saldo_amarela_ter = max(0, 4 - usadas_amarela_ter)
     saldo_laranja_ter = max(0, 0 - usadas_laranja_ter)
-    saldo_azul_ter = max(0, 8 - usadas_azul_ter)
+    saldo_azul_ter = max(0, 7 - usadas_azul_ter)
 
     # Exibição dos Dados e do Estoque Atualizado de Terça
     st.write("---")
     cdt1, cdt2 = st.columns(2)
     with cdt1:
-        st.code("42634\n1888\n75444\n119966")
+        st.markdown("**Terça-feira**")
+
+        valor1_ter_sp = st.number_input("SP   ", value=0)
+        valor2_ter_pr = st.number_input("PR   ", value=0)
+        valor3_ter_outros = st.number_input("RS/SC/MG/RJ   ", value=0)
+
+        st.metric("Total Dia", f"{valor1_ter_sp + valor2_ter_pr + valor3_ter_outros:,}".replace(",", "."))
+
     with cdt2:
         st.markdown("**Restante:**")
         linha_amarela_t = "🟡 " * saldo_amarela_ter
         linha_laranja_t = "🟠 " * saldo_laranja_ter
         linha_azul_t = "🔵 " * saldo_azul_ter
-        
+       
         st.write(f"{linha_amarela_t}{linha_laranja_t}" if (linha_amarela_t or linha_laranja_t) else "Sem amarelas/laranjas")
         st.write(f"{linha_azul_t}" if linha_azul_t else "Sem azuis")
+
+# --- COLUNA: QUARTA-FEIRA ---
+with col_qua:
+    
+    col_titulo_qua, col_data_qua = st.columns([2, 3])
+
+    with col_titulo_qua:
+        st.markdown(
+            "<div style='margin-top:8px;'><b>Quarta-feira</b></div>",
+            unsafe_allow_html=True
+        )
+
+    with col_data_qua:
+        data_qua = st.date_input(
+            "",
+            key="data_qua",
+            format="DD/MM/YYYY",
+            label_visibility="collapsed"
+        )
+   
+    # Caixa do turno do Dia (Quarta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Qua Dia P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"q_d_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["qua_dia"][i] = opcao
+
+    st.write(" ") # Espaçador
+
+    # Caixa do turno da Noite (Quarta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Qua Noite P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"q_n_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["qua_noite"][i] = opcao
+
+    # --- CÁLCULO DO ESTOQUE DA QUARTA ---
+    # Conta quantas de cada cor foram usadas na Quarta
+    todas_qua = st.session_state.bolinhas["qua_dia"] + st.session_state.bolinhas["qua_noite"]
+    usadas_amarela_qua = todas_qua.count("🟡")
+    usadas_laranja_qua = todas_qua.count("🟠")
+    usadas_azul_qua = todas_qua.count("🔵")
+
+    # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
+    saldo_amarela_qua = max(0, 7 - usadas_amarela_qua)
+    saldo_laranja_qua = max(0, 2 - usadas_laranja_qua)
+    saldo_azul_qua = max(0, 4 - usadas_azul_qua)
+
+    # Exibição dos Dados e do Estoque Atualizado de Quarta
+    st.write("---")
+    cdq1, cdq2 = st.columns(2)
+    with cdq1:
+        st.markdown("**Quarta-feira**")
+
+        valor1_qua_sp = st.number_input("SP  ", value=0)
+        valor2_qua_pr = st.number_input("PR  ", value=0)
+        valor3_qua_outros = st.number_input("RS/SC/MG/RJ  ", value=0)
+
+        st.metric("Total Dia", f"{valor1_qua_sp + valor2_qua_pr + valor3_qua_outros:,}".replace(",", "."))
+
+    with cdq2:
+        st.markdown("**Restante:**")
+        linha_amarela_q = "🟡 " * saldo_amarela_qua
+        linha_laranja_q = "🟠 " * saldo_laranja_qua
+        linha_azul_q = "🔵 " * saldo_azul_qua
+       
+        st.write(f"{linha_amarela_q}{linha_laranja_q}" if (linha_amarela_q or linha_laranja_q) else "Sem amarelas/laranjas")
+        st.write(f"{linha_azul_q}" if linha_azul_q else "Sem azuis")
+
+# --- COLUNA: QUINTA-FEIRA ---
+with col_qui:
+    col_titulo_qui, col_data_qui = st.columns([2, 3])
+
+    with col_titulo_qui:
+        st.markdown(
+            "<div style='margin-top:8px;'><b>Quinta-feira</b></div>",
+            unsafe_allow_html=True
+        )
+
+    with col_data_qui:
+        data_qui = st.date_input(
+            "",
+            key="data_qui",
+            format="DD/MM/YYYY",
+            label_visibility="collapsed"
+        )
+   
+    # Caixa do turno do Dia (Quinta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Qui Dia P{i+1}", ["Vazio", "🟡", "🔵"], key=f"qu_d_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["qui_dia"][i] = opcao
+
+    st.write(" ") # Espaçador
+
+    # Caixa do turno da Noite (Quinta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Qui Noite P{i+1}", ["Vazio", "🟡", "🔵"], key=f"qu_n_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["qui_noite"][i] = opcao
+
+    # --- CÁLCULO DO ESTOQUE DA QUINTA ---
+    # Conta quantas de cada cor foram usadas na Quinta
+    todas_qui = st.session_state.bolinhas["qui_dia"] + st.session_state.bolinhas["qui_noite"]
+    usadas_amarela_qui = todas_qui.count("🟡")
+    #usadas_laranja_qui = todas_qui.count("🟠")
+    usadas_azul_qui = todas_qui.count("🔵")
+
+    # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
+    saldo_amarela_qui = max(0, 4 - usadas_amarela_qui)
+    #saldo_laranja_qui = max(0, 0 - usadas_laranja_qui)
+    saldo_azul_qui = max(0, 8 - usadas_azul_qui)
+
+    # Exibição dos Dados e do Estoque Atualizado de Quinta
+    st.write("---")
+    cdqu1, cdqu2 = st.columns(2)
+    with cdqu1:
+        st.markdown("**Quinta-feira**")
+
+        valor1_qui_sp = st.number_input("SP", value=0)
+        valor2_qui_pr = st.number_input("PR", value=0)
+        valor3_qui_outros = st.number_input("RS/SC/MG/RJ", value=0)
+
+        st.metric("Total Dia", f"{valor1_qui_sp + valor2_qui_pr + valor3_qui_outros:,}".replace(",", "."))
+
+    with cdqu2:
+        st.markdown("**Restante:**")
+        linha_amarela_qu = "🟡 " * saldo_amarela_qui
+        #linha_laranja_qu = "🟠 " * saldo_laranja_qui
+        linha_azul_qu = "🔵 " * saldo_azul_qui
+       
+        st.write(f"{linha_amarela_qu}" if (linha_amarela_qu) else "Sem amarelas/laranjas")
+        st.write(f"{linha_azul_qu}" if linha_azul_qu else "Sem azuis")
+
+# --- COLUNA: SEXTA-FEIRA ---
+with col_sex:
+    col_titulo_sex, col_data_sex = st.columns([2, 3])
+
+    with col_titulo_sex:
+        st.markdown(
+            "<div style='margin-top:8px;'><b>Sexta-feira</b></div>",
+            unsafe_allow_html=True
+        )
+
+    with col_data_sex:
+        data_sex = st.date_input(
+            "",
+            key="data_sex",
+            format="DD/MM/YYYY",
+            label_visibility="collapsed"
+        )
+   
+    # Caixa do turno do Dia (Sexta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Sex Dia P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"sex_d_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["sex_dia"][i] = opcao
+
+    st.write(" ") # Espaçador
+
+    # Caixa do turno da Noite (Sexta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Sex Noite P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"sex_n_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["sex_noite"][i] = opcao
+
+    # --- CÁLCULO DO ESTOQUE DA Sexta ---
+    # Conta quantas de cada cor foram usadas na Sexta
+    todas_sex = st.session_state.bolinhas["sex_dia"] + st.session_state.bolinhas["sex_noite"]
+    usadas_amarela_sex = todas_sex.count("🟡")
+    usadas_laranja_sex = todas_sex.count("🟠 Laranja")
+    usadas_azul_sex = todas_sex.count("🔵")
+
+    # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
+    saldo_amarela_sex = max(0, 4 - usadas_amarela_sex)
+    saldo_laranja_sex = max(0, 1 - usadas_laranja_sex)
+    saldo_azul_sex = max(0, 6 - usadas_azul_sex)
+
+    # Exibição dos Dados e do Estoque Atualizado de Sexta
+    st.write("---")
+    cdsex1, cdsex2 = st.columns(2)
+    with cdsex1:
+        st.markdown("**Sexta-feira**")
+
+        valor1_sex_sp = st.number_input("SP ", value=0)
+        valor2_sex_pr = st.number_input("PR ", value=0)
+        valor3_sex_outros = st.number_input("RS/SC/MG/RJ ", value=0)
+
+        st.metric("Total Dia", f"{valor1_sex_sp + valor2_sex_pr + valor3_sex_outros:,}".replace(",", "."))
+
+    with cdsex2:
+        st.markdown("**Restante:**")
+        linha_amarela_sex = "🟡 " * saldo_amarela_sex
+        linha_laranja_sex = "🟠 " * saldo_laranja_sex
+        linha_azul_sex = "🔵 " * saldo_azul_sex
+       
+        st.write(f"{linha_amarela_sex}{linha_laranja_sex}" if (linha_amarela_sex or linha_laranja_sex) else "Sem amarelas/laranjas")
+        st.write(f"{linha_azul_sex}" if linha_azul_sex else "Sem azuis")
+
+
+# Somando as regiões
+sp_total_semana = valor1_seg_sp + valor1_ter_sp + valor1_qua_sp + valor1_qui_sp + valor1_sex_sp
+pr_total_semana = valor2_seg_pr + valor2_ter_pr + valor2_qua_pr + valor2_qui_pr + valor2_sex_pr
+outros_total_semana = valor3_seg_outros + valor3_ter_outros + valor3_qua_outros + valor3_qui_outros + valor3_sex_outros
+
+# --- COLUNA: SABADO ---
+with col_sab:
+    col_titulo_sab, col_data_sab = st.columns([2, 3])
+
+    with col_titulo_sab:
+        st.markdown(
+            "<div style='margin-top:8px;'><b>Sábado</b></div>",
+            unsafe_allow_html=True
+        )
+
+    with col_data_sab:
+        data_sab = st.date_input(
+            "",
+            key="data_sab",
+            format="DD/MM/YYYY",
+            label_visibility="collapsed"
+        )
+   
+    # Caixa do turno do Dia (Sexta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Sab Dia P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"sabado_d_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["sabado"][i] = opcao
+
+    st.write('')
+    st.write('')
+    st.write('')
+    st.write('')
+    st.write('')
+    st.write('')
+    st.write('')
+    st.write('')
+    st.write('')
+    st.write('')
+
+    st.write("---")
+    cdsab1, cdsab2 = st.columns(2)
+    with cdsab1:
+        st.markdown("**Total**")
+
+        valor1_sex_sp = st.number_input("SP      ", value=sp_total_semana, disabled=True)
+        valor2_sex_pr = st.number_input("PR      ", value=pr_total_semana, disabled=True)
+        valor3_sex_outros = st.number_input("RS/SC/MG/RJ       ", value=outros_total_semana, disabled=True)
+
+        st.metric("Total Semana", f"{sp_total_semana + pr_total_semana + outros_total_semana:,}".replace(",", "."))

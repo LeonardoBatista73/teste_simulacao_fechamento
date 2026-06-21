@@ -5,8 +5,43 @@ import os
 from datetime import datetime
 from datetime import date
 
-# Configura a página do Streamlit para tela cheia
-st.set_page_config(layout="wide")
+# 1. Configuração inicial
+st.set_page_config(page_title="Simulador de Fechamento", layout="wide")
+
+# 2. Inicializa o estado de segurança
+if "logado" not in st.session_state:
+    st.session_state.logado = False
+
+# FASE 1: TELA DE LOGIN (Bloqueia o resto do código)
+if not st.session_state.logado:
+    col1, col2, col3 = st.columns([1, 2, 1]) # O meio é mais largo
+    with col2:
+        with st.container(border=True):
+            st.subheader("🔒 Login | Simulador de Fechamento")
+            usuario = st.text_input("Usuário")
+            senha = st.text_input("Senha", type="password")
+            if st.button("Entrar", use_container_width=True):
+                if usuario == "admin" and senha == "123":
+                    st.session_state.logado = True
+                    st.rerun()
+                else:
+                    st.error("Dados incorretos.")
+    st.stop() 
+
+# Cria o cabeçalho: Título à esquerda e botão Sair à direita
+topo_esquerda, topo_direita = st.columns([5, 1])
+
+with topo_esquerda:
+    st.title("📊 Simulador de Fechamento")
+
+with topo_direita:
+    # Espaçamento para alinhar verticalmente com o título
+    st.write("") 
+    if st.button("Sair", type="primary", use_container_width=True):
+        st.session_state.logado = False
+        st.rerun()
+
+st.write("---")
 
 ARQUIVO_DADOS = "dados_planejamento.json"
 
@@ -23,14 +58,20 @@ def salvar_dados():
     dados = {}
 
     for chave, valor in st.session_state.items():
+
+        if chave == "restaurar_backup_json":
+            continue
+
         try:
             json.dumps(valor)
             dados[chave] = valor
-        except:
-            dados[chave] = str(valor)
 
+        except TypeError:
+            pass
+        
     with open(ARQUIVO_DADOS, "w", encoding="utf-8") as f:
         json.dump(dados, f, ensure_ascii=False, indent=4)
+
 
 # Carrega apenas uma vez
 if "dados_restaurados" not in st.session_state:
@@ -59,10 +100,9 @@ with top2:
         ["100 mil", "110 mil", "120 mil"]
     )
 
-
-st.markdown(
-    f"<h2 style='text-align: center; font-size: 36px;'>📊 Simulação de Fechamento | {cenario}  </h2>",
-    unsafe_allow_html=True)
+# st.markdown(
+#     f"<h2 style='text-align: center; font-size: 36px;'>📊 Simulação de Fechamento | {cenario}  </h2>",
+#     unsafe_allow_html=True)
 
 st.write('')
 
@@ -140,13 +180,20 @@ with btn2:
 
     for chave, valor in st.session_state.items():
 
+        # Ignora o uploader
+        if chave == "restaurar_backup_json":
+            continue
+
         try:
             if isinstance(valor, date):
                 dados_exportacao[chave] = valor.isoformat()
             else:
+                # testa se é serializável
+                json.dumps(valor)
                 dados_exportacao[chave] = valor
-        except:
-            dados_exportacao[chave] = str(valor)
+
+        except TypeError:
+            pass
 
     json_download = json.dumps(
         dados_exportacao,
@@ -178,6 +225,14 @@ with btn3:
                 dados = json.load(arquivo_json)
 
                 for chave, valor in dados.items():
+
+                    # Ignora widgets internos
+                    if chave in [
+                        "restaurar_backup_json",
+                        "dados_restaurados",
+                        "logado"
+                    ]:
+                        continue
 
                     if chave.startswith("data_") and isinstance(valor, str):
                         try:
@@ -318,7 +373,7 @@ with col_ter:
         c1, c2 = st.columns(2)
         for i in range(4):
             col_alvo = c1 if i % 2 == 0 else c2
-            opcao = col_alvo.selectbox(f"Ter Dia P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"t_d_{i}", label_visibility="collapsed")
+            opcao = col_alvo.selectbox(f"Ter Dia P{i+1}", ["Vazio", "🟡", "🔵"], key=f"t_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["ter_dia"][i] = opcao
 
     st.write(" ") # Espaçador
@@ -328,20 +383,19 @@ with col_ter:
         c1, c2 = st.columns(2)
         for i in range(4):
             col_alvo = c1 if i % 2 == 0 else c2
-            opcao = col_alvo.selectbox(f"Ter Noite P{i+1}", ["Vazio", "🟡", "🔵", "🟠"], key=f"t_n_{i}", label_visibility="collapsed")
+            opcao = col_alvo.selectbox(f"Ter Noite P{i+1}", ["Vazio", "🟡", "🔵"], key=f"t_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["ter_noite"][i] = opcao
 
     # --- CÁLCULO DO ESTOQUE DA TERÇA ---
     # Conta quantas de cada cor foram usadas na terça
-    #todas_ter = st.session_state.bolinhas["ter_dia"] + st.session_state.bolinhas["ter_noite"]
     todas_ter = [st.session_state[f"t_d_{i}"]for i in range(4)] + [st.session_state[f"t_n_{i}"]for i in range(4)]
     usadas_amarela_ter = todas_ter.count("🟡")
-    usadas_laranja_ter = todas_ter.count("🟠")
+    #usadas_laranja_ter = todas_ter.count("🟠")
     usadas_azul_ter = todas_ter.count("🔵")
 
     # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
     saldo_amarela_ter = max(0, 4 - usadas_amarela_ter)
-    saldo_laranja_ter = max(0, 0 - usadas_laranja_ter)
+    #saldo_laranja_ter = max(0, 0 - usadas_laranja_ter)
     saldo_azul_ter = max(0, 7 - usadas_azul_ter)
 
     # Exibição dos Dados e do Estoque Atualizado de Terça
@@ -359,10 +413,10 @@ with col_ter:
     with cdt2:
         st.markdown("**Restante:**")
         linha_amarela_t = "🟡 " * saldo_amarela_ter
-        linha_laranja_t = "🟠 " * saldo_laranja_ter
+        #linha_laranja_t = "🟠 " * saldo_laranja_ter
         linha_azul_t = "🔵 " * saldo_azul_ter
        
-        st.write(f"{linha_amarela_t}{linha_laranja_t}" if (linha_amarela_t or linha_laranja_t) else "Sem amarelas/laranjas")
+        st.write(f"{linha_amarela_t}" if (linha_amarela_t) else "Sem amarelas")
         st.write(f"{linha_azul_t}" if linha_azul_t else "Sem azuis")
 
 # --- COLUNA: QUARTA-FEIRA ---
@@ -572,7 +626,6 @@ with col_sex:
        
         st.write(f"{linha_amarela_sex}{linha_laranja_sex}" if (linha_amarela_sex or linha_laranja_sex) else "Sem amarelas/laranjas")
         st.write(f"{linha_azul_sex}" if linha_azul_sex else "Sem azuis")
-
 
 # Somando as regiões
 sp_total_semana = valor1_seg_sp + valor1_ter_sp + valor1_qua_sp + valor1_qui_sp + valor1_sex_sp

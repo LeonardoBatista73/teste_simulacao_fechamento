@@ -3,6 +3,7 @@ from fpdf import FPDF
 import json
 import os
 from datetime import datetime
+from datetime import date
 
 # Configura a página do Streamlit para tela cheia
 st.set_page_config(layout="wide")
@@ -111,10 +112,10 @@ with info2:
 
 st.write('')
 
-btn1, btn2, btn3 = st.columns([0.1, 0.1, 1.5])
+btn1, btn2, btn3 = st.columns([0.1, 0.1, 1.6])
 
 with btn1:
-
+    st.write("")
     if st.button("🔄 Limpar cores"):
 
         prefixes = [
@@ -134,13 +135,13 @@ with btn1:
         st.rerun()
 
 with btn2:
-
+    st.write("")
     dados_exportacao = {}
 
     for chave, valor in st.session_state.items():
 
         try:
-            if hasattr(valor, "isoformat"):
+            if isinstance(valor, date):
                 dados_exportacao[chave] = valor.isoformat()
             else:
                 dados_exportacao[chave] = valor
@@ -161,48 +162,42 @@ with btn2:
     )
 
 with btn3:
+
     arquivo_json = st.file_uploader(
-        "📤 Restaurar Backup",
+        "Restaurar backup salvo:",
         type=["json"],
-        label_visibility="collapsed"
-    )
-    
-    st.caption(
-    f"🔄 Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        key="restaurar_backup_json"
     )
 
     if arquivo_json is not None:
 
-        try:
+        if st.button("🔄 Restaurar", key="btn_restaurar_json"):
 
-            dados = json.load(arquivo_json)
+            try:
 
-            from datetime import datetime
+                dados = json.load(arquivo_json)
 
-            for chave, valor in dados.items():
+                for chave, valor in dados.items():
 
-                if chave.startswith("data_") and isinstance(valor, str):
+                    if chave.startswith("data_") and isinstance(valor, str):
+                        try:
+                            valor = datetime.strptime(
+                                valor,
+                                "%Y-%m-%d"
+                            ).date()
+                        except:
+                            pass
 
-                    try:
-                        valor = datetime.strptime(
-                            valor,
-                            "%Y-%m-%d"
-                        ).date()
-                    except:
-                        pass
+                    st.session_state[chave] = valor
 
-                st.session_state[chave] = valor
+                salvar_dados()
 
-            salvar_dados()
+                st.success("Backup restaurado!")
 
-            st.success("Backup restaurado com sucesso!")
+            except Exception as erro:
+                st.error(f"Erro ao restaurar: {erro}")
 
-            st.rerun()
-
-        except Exception as erro:
-            st.error(f"Erro ao restaurar backup: {erro}")
-
-st.write('')
+st.write("")
 
 # Inicializa o estado das bolinhas nos campos se não existir
 if "bolinhas" not in st.session_state:
@@ -267,7 +262,8 @@ with col_seg:
 
     # --- CÁLCULO DO ESTOQUE DA SEGUNDA ---
     # Conta quantas de cada cor foram usadas na segunda (somando dia e noite)
-    todas_seg = st.session_state.bolinhas["seg_dia"] + st.session_state.bolinhas["seg_noite"]
+    #todas_seg = st.session_state.bolinhas["seg_dia"] + st.session_state.bolinhas["seg_noite"]
+    todas_seg = [st.session_state[f"s_d_{i}"]for i in range(4)] + [st.session_state[f"s_n_{i}"]for i in range(4)]
     usadas_amarela_seg = todas_seg.count("🟡")
     usadas_laranja_seg = todas_seg.count("🟠")
     usadas_azul_seg = todas_seg.count("🔵")
@@ -337,7 +333,8 @@ with col_ter:
 
     # --- CÁLCULO DO ESTOQUE DA TERÇA ---
     # Conta quantas de cada cor foram usadas na terça
-    todas_ter = st.session_state.bolinhas["ter_dia"] + st.session_state.bolinhas["ter_noite"]
+    #todas_ter = st.session_state.bolinhas["ter_dia"] + st.session_state.bolinhas["ter_noite"]
+    todas_ter = [st.session_state[f"t_d_{i}"]for i in range(4)] + [st.session_state[f"t_n_{i}"]for i in range(4)]
     usadas_amarela_ter = todas_ter.count("🟡")
     usadas_laranja_ter = todas_ter.count("🟠")
     usadas_azul_ter = todas_ter.count("🔵")
@@ -407,7 +404,7 @@ with col_qua:
 
     # --- CÁLCULO DO ESTOQUE DA QUARTA ---
     # Conta quantas de cada cor foram usadas na Quarta
-    todas_qua = st.session_state.bolinhas["qua_dia"] + st.session_state.bolinhas["qua_noite"]
+    todas_qua = [st.session_state[f"q_d_{i}"]for i in range(4)] + [st.session_state[f"q_n_{i}"]for i in range(4)]
     usadas_amarela_qua = todas_qua.count("🟡")
     usadas_laranja_qua = todas_qua.count("🟠")
     usadas_azul_qua = todas_qua.count("🔵")
@@ -476,7 +473,7 @@ with col_qui:
 
     # --- CÁLCULO DO ESTOQUE DA QUINTA ---
     # Conta quantas de cada cor foram usadas na Quinta
-    todas_qui = st.session_state.bolinhas["qui_dia"] + st.session_state.bolinhas["qui_noite"]
+    todas_qui = [st.session_state[f"qu_d_{i}"]for i in range(4)] + [st.session_state[f"qu_n_{i}"]for i in range(4)]
     usadas_amarela_qui = todas_qui.count("🟡")
     #usadas_laranja_qui = todas_qui.count("🟠")
     usadas_azul_qui = todas_qui.count("🔵")
@@ -545,7 +542,7 @@ with col_sex:
 
     # --- CÁLCULO DO ESTOQUE DA Sexta ---
     # Conta quantas de cada cor foram usadas na Sexta
-    todas_sex = st.session_state.bolinhas["sex_dia"] + st.session_state.bolinhas["sex_noite"]
+    todas_sex = [st.session_state[f"sex_d_{i}"]for i in range(4)] + [st.session_state[f"sex_n_{i}"]for i in range(4)]
     usadas_amarela_sex = todas_sex.count("🟡")
     usadas_laranja_sex = todas_sex.count("🟠")
     usadas_azul_sex = todas_sex.count("🔵")
@@ -624,10 +621,8 @@ with col_sab:
     with cdsab1:
         st.markdown("**Total**")
 
-        valor1_sex_sp = st.number_input("SP      ", value=sp_total_semana, disabled=True)
-        valor2_sex_pr = st.number_input("PR      ", value=pr_total_semana, disabled=True)
-        valor3_sex_outros = st.number_input("RS/SC/MG/RJ       ", value=outros_total_semana, disabled=True)
+        sp_total_semana = st.number_input("SP      ", value=sp_total_semana, disabled=True)
+        pr_total_semana = st.number_input("PR      ", value=pr_total_semana, disabled=True)
+        outros_total_semana = st.number_input("RS/SC/MG/RJ       ", value=outros_total_semana, disabled=True)
 
         st.metric("Total Semana", f"{sp_total_semana + pr_total_semana + outros_total_semana:,}".replace(",", "."))
-
-salvar_dados()

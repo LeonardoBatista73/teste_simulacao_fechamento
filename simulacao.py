@@ -1,8 +1,54 @@
 import streamlit as st
 from fpdf import FPDF
+import json
+import os
+from datetime import datetime
 
 # Configura a página do Streamlit para tela cheia
 st.set_page_config(layout="wide")
+
+ARQUIVO_DADOS = "dados_planejamento.json"
+
+def carregar_dados():
+    if os.path.exists(ARQUIVO_DADOS):
+        try:
+            with open(ARQUIVO_DADOS, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def salvar_dados():
+    dados = {}
+
+    for chave, valor in st.session_state.items():
+        try:
+            json.dumps(valor)
+            dados[chave] = valor
+        except:
+            dados[chave] = str(valor)
+
+    with open(ARQUIVO_DADOS, "w", encoding="utf-8") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=4)
+
+# Carrega apenas uma vez
+if "dados_restaurados" not in st.session_state:
+
+    dados_salvos = carregar_dados()
+
+    for chave, valor in dados_salvos.items():
+
+        # restaura datas
+        if chave.startswith("data_") and isinstance(valor, str):
+            try:
+                from datetime import datetime
+                valor = datetime.strptime(valor, "%Y-%m-%d").date()
+            except:
+                pass
+
+        st.session_state[chave] = valor
+
+    st.session_state["dados_restaurados"] = True
 
 top1, top2, top3 = st.columns([1, 2, 1])
 
@@ -12,8 +58,9 @@ with top2:
         ["100 mil", "110 mil", "120 mil"]
     )
 
+
 st.markdown(
-    f"<h2 style='text-align: center;'>📊 Simulação de Fechamento | {cenario}  </h2>",
+    f"<h2 style='text-align: center; font-size: 36px;'>📊 Simulação de Fechamento | {cenario}  </h2>",
     unsafe_allow_html=True)
 
 st.write('')
@@ -25,7 +72,7 @@ with info1:
         background-color: #107acc;
         border-left: 5px solid #107acc;
         padding: 8px;
-        font-size: 20px;
+        font-size: 16px;
         border-radius: 5px;
         margin: 8px 0;
     ">
@@ -43,11 +90,11 @@ with info2:
     st.markdown("""
     <div style="
         background-color: #107acc;
-        border-left: 5px solid #107acc;
-        padding: 8px;
+        border-left: 6px solid #107acc;
+        padding: 12px;
         border-radius: 5px;
         margin: 8px 0;
-        font-size: 20px;
+        font-size: 16px;
         line-height: 1.65;
     ">
         <p>
@@ -63,6 +110,98 @@ with info2:
     """, unsafe_allow_html=True)
 
 st.write('')
+
+btn1, btn2, btn3 = st.columns([0.1, 0.1, 1.5])
+
+with btn1:
+
+    if st.button("🔄 Limpar cores"):
+
+        prefixes = [
+            "s_d_", "s_n_",
+            "t_d_", "t_n_",
+            "q_d_", "q_n_",
+            "qu_d_", "qu_n_",
+            "sex_d_", "sex_n_",
+            "sabado_d_"
+        ]
+
+        for key in list(st.session_state.keys()):
+            if any(key.startswith(prefix) for prefix in prefixes):
+                st.session_state[key] = "Vazio"
+
+        salvar_dados()
+        st.rerun()
+
+with btn2:
+
+    dados_exportacao = {}
+
+    for chave, valor in st.session_state.items():
+
+        try:
+            if hasattr(valor, "isoformat"):
+                dados_exportacao[chave] = valor.isoformat()
+            else:
+                dados_exportacao[chave] = valor
+        except:
+            dados_exportacao[chave] = str(valor)
+
+    json_download = json.dumps(
+        dados_exportacao,
+        ensure_ascii=False,
+        indent=4
+    )
+
+    st.download_button(
+        label="📥 Baixar Backup",
+        data=json_download,
+        file_name=f"planejamento_{datetime.now().strftime('%Y%m%d_%H%M')}.json",
+        mime="application/json"
+    )
+
+with btn3:
+    arquivo_json = st.file_uploader(
+        "📤 Restaurar Backup",
+        type=["json"],
+        label_visibility="collapsed"
+    )
+    
+    st.caption(
+    f"🔄 Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    )
+
+    if arquivo_json is not None:
+
+        try:
+
+            dados = json.load(arquivo_json)
+
+            from datetime import datetime
+
+            for chave, valor in dados.items():
+
+                if chave.startswith("data_") and isinstance(valor, str):
+
+                    try:
+                        valor = datetime.strptime(
+                            valor,
+                            "%Y-%m-%d"
+                        ).date()
+                    except:
+                        pass
+
+                st.session_state[chave] = valor
+
+            salvar_dados()
+
+            st.success("Backup restaurado com sucesso!")
+
+            st.rerun()
+
+        except Exception as erro:
+            st.error(f"Erro ao restaurar backup: {erro}")
+
 st.write('')
 
 # Inicializa o estado das bolinhas nos campos se não existir
@@ -81,8 +220,9 @@ if "bolinhas" not in st.session_state:
         "sabado": ["Vazio"] * 4
     }
 
+
 # Cria a estrutura de colunas na tela para organizar lado a lado
-col_label, col_seg, col_ter, col_qua, col_qui, col_sex, col_sab = st.columns([0.3, 1, 1, 1, 1, 1, 1])
+col_label, col_seg, col_ter, col_qua, col_qui, col_sex, col_sab = st.columns([0.2, 1, 1, 1, 1, 1, 1])
 
 # --- COLUNA DA ESQUERDA: RÓTULOS DOS TURNOS ---
 with col_label:
@@ -143,9 +283,9 @@ with col_seg:
     with cd1:
         st.markdown("**Segunda-feira**")
 
-        valor1_seg_sp = st.number_input("SP    ", value=0)
-        valor2_seg_pr = st.number_input("PR    ", value=0)
-        valor3_seg_outros = st.number_input("RS/SC/MG/RJ    ", value=0)
+        valor1_seg_sp = st.number_input("SP    ", key="valor1_seg_sp")
+        valor2_seg_pr = st.number_input("PR    ", key="valor2_seg_pr")
+        valor3_seg_outros = st.number_input("RS/SC/MG/RJ    ", key="valor3_seg_outros")
 
         st.metric("Total Dia", f"{valor1_seg_sp + valor2_seg_pr + valor3_seg_outros:,}".replace(",", "."))
 
@@ -213,9 +353,9 @@ with col_ter:
     with cdt1:
         st.markdown("**Terça-feira**")
 
-        valor1_ter_sp = st.number_input("SP   ", value=0)
-        valor2_ter_pr = st.number_input("PR   ", value=0)
-        valor3_ter_outros = st.number_input("RS/SC/MG/RJ   ", value=0)
+        valor1_ter_sp = st.number_input("SP   ",key="valor1_ter_sp")
+        valor2_ter_pr = st.number_input("PR   ", key="valor2_ter_pr")
+        valor3_ter_outros = st.number_input("RS/SC/MG/RJ   ", key="valor3_ter_outros")
 
         st.metric("Total Dia", f"{valor1_ter_sp + valor2_ter_pr + valor3_ter_outros:,}".replace(",", "."))
 
@@ -283,9 +423,9 @@ with col_qua:
     with cdq1:
         st.markdown("**Quarta-feira**")
 
-        valor1_qua_sp = st.number_input("SP  ", value=0)
-        valor2_qua_pr = st.number_input("PR  ", value=0)
-        valor3_qua_outros = st.number_input("RS/SC/MG/RJ  ", value=0)
+        valor1_qua_sp = st.number_input("SP  ", key="valor1_qua_sp")
+        valor2_qua_pr = st.number_input("PR  ",  key="valor2_qua_pr")
+        valor3_qua_outros = st.number_input("RS/SC/MG/RJ  ", key="valor3_qua_outros")
 
         st.metric("Total Dia", f"{valor1_qua_sp + valor2_qua_pr + valor3_qua_outros:,}".replace(",", "."))
 
@@ -352,9 +492,9 @@ with col_qui:
     with cdqu1:
         st.markdown("**Quinta-feira**")
 
-        valor1_qui_sp = st.number_input("SP", value=0)
-        valor2_qui_pr = st.number_input("PR", value=0)
-        valor3_qui_outros = st.number_input("RS/SC/MG/RJ", value=0)
+        valor1_qui_sp = st.number_input("SP", key="valor1_qui_sp")
+        valor2_qui_pr = st.number_input("PR", key="valor2_qui_pr")
+        valor3_qui_outros = st.number_input("RS/SC/MG/RJ", key="valor3_qui_outros")
 
         st.metric("Total Dia", f"{valor1_qui_sp + valor2_qui_pr + valor3_qui_outros:,}".replace(",", "."))
 
@@ -407,7 +547,7 @@ with col_sex:
     # Conta quantas de cada cor foram usadas na Sexta
     todas_sex = st.session_state.bolinhas["sex_dia"] + st.session_state.bolinhas["sex_noite"]
     usadas_amarela_sex = todas_sex.count("🟡")
-    usadas_laranja_sex = todas_sex.count("🟠 Laranja")
+    usadas_laranja_sex = todas_sex.count("🟠")
     usadas_azul_sex = todas_sex.count("🔵")
 
     # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
@@ -421,9 +561,9 @@ with col_sex:
     with cdsex1:
         st.markdown("**Sexta-feira**")
 
-        valor1_sex_sp = st.number_input("SP ", value=0)
-        valor2_sex_pr = st.number_input("PR ", value=0)
-        valor3_sex_outros = st.number_input("RS/SC/MG/RJ ", value=0)
+        valor1_sex_sp = st.number_input("SP ", key="valor1_sex_sp")
+        valor2_sex_pr = st.number_input("PR ", key="valor2_sex_pr")
+        valor3_sex_outros = st.number_input("RS/SC/MG/RJ ", key="valor3_sex_outros")
 
         st.metric("Total Dia", f"{valor1_sex_sp + valor2_sex_pr + valor3_sex_outros:,}".replace(",", "."))
 
@@ -489,3 +629,5 @@ with col_sab:
         valor3_sex_outros = st.number_input("RS/SC/MG/RJ       ", value=outros_total_semana, disabled=True)
 
         st.metric("Total Semana", f"{sp_total_semana + pr_total_semana + outros_total_semana:,}".replace(",", "."))
+
+salvar_dados()

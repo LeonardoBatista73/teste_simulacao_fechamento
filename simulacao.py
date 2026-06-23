@@ -4,9 +4,12 @@ import json
 import os
 from datetime import datetime
 from datetime import date
+from datetime import date, timedelta
+import math
 
 # 1. Configuração inicial
 st.set_page_config(page_title="Simulador de Fechamento", layout="wide")
+
 
 # 2. Inicializa o estado de segurança
 if "logado" not in st.session_state:
@@ -37,7 +40,7 @@ topo_esquerda, topo_direita = st.columns([5, 1])
 
 with topo_esquerda:
     st.title("📊 Simulador de Fechamento")
-
+    
 with topo_direita:
     # Espaçamento para alinhar verticalmente com o título
     st.write("") 
@@ -75,7 +78,6 @@ def salvar_dados():
         json.dump(dados, f, ensure_ascii=False, indent=4)
 
 # Carrega apenas uma vez
-
 if "dados_restaurados" not in st.session_state:
     dados_salvos = carregar_dados()
     
@@ -94,6 +96,21 @@ if "dados_restaurados" not in st.session_state:
 
 top1, top2, top3 = st.columns([1, 2, 1])
 
+# Obter datas para os campos de data
+def obter_datas_semana_atual():
+    hoje = date.today()
+
+    segunda = hoje - timedelta(days=hoje.weekday())
+
+    return {
+        "data_seg": segunda,
+        "data_ter": segunda + timedelta(days=1),
+        "data_qua": segunda + timedelta(days=2),
+        "data_qui": segunda + timedelta(days=3),
+        "data_sex": segunda + timedelta(days=4),
+        "data_sab": segunda + timedelta(days=5),
+    }
+
 with top2:
     cenario = st.selectbox(
         "⚙️ Cenário",
@@ -102,13 +119,28 @@ with top2:
 
 st.write('')
 
-info1, info2 = st.columns(2)
+info1, info2 , info3= st.columns([0.45, 1.5, 1.5])
 
 with info1:
+    # Adicionando o GIF com borda arredondada via HTML para estética limpa
+    st.markdown(
+        """
+        <div style="padding: 10px; border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+            <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExanRiOTFlYW80em5sZHNlYmkyd2Jyd282anN5emF6anFzbmo3ZW8zdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l46Cy1rHbQ92uuLXa/giphy.gif" style="width: 100%; border-radius: 4px;">
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
+# https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXpzMXNhdDlsMWtsdjQ3ajJmN3RyMGJyMWV6amtoZG5jbTNjZ3M1dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6ZsUk0jb6m80uAg0/giphy.gif
+# https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXdiZDg2bHJ3ZmRvcTV5dTVwZjM0aHhxa3dzYmxwOWtjeGVhdHJpNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPEqDGUULpEU0aQ/giphy.gif
+# https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExanRiOTFlYW80em5sZHNlYmkyd2Jyd282anN5emF6anFzbmo3ZW8zdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l46Cy1rHbQ92uuLXa/giphy.gif
+# https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExenZnbDM3YzlhZ3M3OHNpMGh5ZTE0bjQyOHBubTlkeGozMm42OHB3dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dWesBcTLavkZuG35MI/giphy.gif
+
+with info2:
 
     st.markdown("""
     <div style="
-        background-color: #0078d4;
+        background-color: #262730;
         border-left: 5px solid #0078d4;
         padding: 8px;
         font-size: 16px;
@@ -120,16 +152,16 @@ with info1:
             Cada círculo = 10.000 endereços
         </p>
         <p>
-            Total de volume carregado = 80.000 endereços | Equivalente a produzidos 100.000 endereços
+            Total de volume carregado = 80.000 endereços
         </p>
     </div>
     """, unsafe_allow_html=True)
 
 
-with info2:
+with info3:
     st.markdown("""
     <div style="
-        background-color: #0078d4;
+        background-color: #262730;
         border-left: 6px solid #0078d4;
         padding: 12px;
         border-radius: 5px;
@@ -152,7 +184,7 @@ with info2:
 
 st.write('')
 
-btn1, btn2, btn3 = st.columns([0.1, 0.1, 1.7])
+btn1, btn2, btn3, btn4 = st.columns([0.1, 0.1, 0.1 ,1.6])
 
 with btn1:
     st.write("")
@@ -164,7 +196,7 @@ with btn1:
             "q_d_", "q_n_",
             "qu_d_", "qu_n_",
             "sex_d_", "sex_n_",
-            "sabado_d_"
+            "sabado_d_", "sabado_n_"
         ]
 
         for key in list(st.session_state.keys()):
@@ -179,17 +211,23 @@ with btn2:
     st.write("")
     dados_exportacao = {}
 
+    IGNORAR = {
+        "restaurar_backup_json",
+        "bolinhas"
+    }
+
     for chave, valor in st.session_state.items():
-        # Ignora o uploader
-        if chave == "restaurar_backup_json":
+
+        if chave in IGNORAR:
             continue
+
         try:
             if isinstance(valor, date):
                 dados_exportacao[chave] = valor.isoformat()
             else:
-                # testa se é serializável
                 json.dumps(valor)
                 dados_exportacao[chave] = valor
+
         except TypeError:
             pass
             
@@ -207,8 +245,44 @@ with btn2:
         mime="application/json"
     )
 
-
 with btn3:
+    st.write("")
+    if st.button("🆕 Novo Layout"):
+        # Atualiza datas
+        for chave, valor in obter_datas_semana_atual().items():
+            st.session_state[chave] = valor
+
+        # Limpa cores
+        prefixes = [
+            "s_d_", "s_n_",
+            "t_d_", "t_n_",
+            "q_d_", "q_n_",
+            "qu_d_", "qu_n_",
+            "sex_d_", "sex_n_",
+            "sabado_d_", "sabado_n_"
+        ]
+
+        for key in list(st.session_state.keys()):
+
+            if any(key.startswith(prefix) for prefix in prefixes):
+                st.session_state[key] = "Vazio"
+
+        # Zera volumes
+        for key in list(st.session_state.keys()):
+
+            if (
+                key.startswith("valor1_")
+                or key.startswith("valor2_")
+                or key.startswith("valor3_")
+            ):
+                st.session_state[key] = 0
+
+        salvar_dados()
+
+        st.success("Iniciado!")
+        st.rerun()
+
+with btn4:
     arquivo_json = st.file_uploader(
         "Restaurar backup salvo:",
         type=["json"],
@@ -224,7 +298,10 @@ with btn3:
                     if chave in [
                         "restaurar_backup_json",
                         "dados_restaurados",
-                        "logado"
+                        "logado",
+                        "btn_restaurar_json",
+                        "backup_restaurado",
+                        "bolinhas"
                     ]:
                         continue
 
@@ -250,6 +327,13 @@ with btn3:
 
 st.write("")
 
+# Função quantidade de quadrados
+def quantidade_por_volume(valor):
+    if valor <= 0:
+        return 0
+
+    return math.ceil(valor / 10000)
+
 # Inicializa o estado das bolinhas nos campos se não existir
 
 if "bolinhas" not in st.session_state:
@@ -264,8 +348,13 @@ if "bolinhas" not in st.session_state:
         "qui_noite": ["Vazio"] * 4,
         "sex_dia": ["Vazio"] * 4,
         "sex_noite": ["Vazio"] * 4,
-        "sabado": ["Vazio"] * 4
+        "sabado": ["Vazio"] * 4,
+        "sabado_noite": ["Vazio"] * 4
     }
+
+# Deletar session para inclusão de campos
+#if "bolinhas" in st.session_state:
+    #del st.session_state["bolinhas"]
 
 # Cria a estrutura de colunas na tela para organizar lado a lado
 
@@ -324,11 +413,6 @@ with col_seg:
     usadas_laranja_seg = todas_seg.count("🟧")
     usadas_azul_seg = todas_seg.count("🟦")
 
-    # Estoque Inicial da Imagem: 5 Amarelas, 1 Laranja, 6 Azuis
-    saldo_amarela_seg = max(0, 4 - usadas_amarela_seg)
-    saldo_laranja_seg = max(0, 1 - usadas_laranja_seg)
-    saldo_azul_seg = max(0, 5 - usadas_azul_seg)
-
     # Exibição dos Dados e do Estoque Atualizado de Segunda
     st.write("---")
 
@@ -336,11 +420,30 @@ with col_seg:
 
     with cd1:
         st.markdown("**Segunda-feira**")
-        valor1_seg_sp = st.number_input("SP (18:00)    ", key="valor1_seg_sp")
-        valor2_seg_pr = st.number_input("PR (18:01)   ", key="valor2_seg_pr")
-        valor3_seg_outros = st.number_input("RS/SC/MG/RJ (18:30)    ", key="valor3_seg_outros")
+        valor1_seg_sp = int(st.number_input("SP (18:00)    ", key="valor1_seg_sp"))
+        valor2_seg_pr = int(st.number_input("PR (18:01)   ", key="valor2_seg_pr"))
+        valor3_seg_outros = int(st.number_input("RS/SC/MG/RJ (18:30)    ", key="valor3_seg_outros"))
 
         st.metric("Total Dia", f"{valor1_seg_sp + valor2_seg_pr + valor3_seg_outros:,}".replace(",", "."))
+    
+        disponivel_amarela_seg = quantidade_por_volume(valor1_seg_sp)
+        disponivel_laranja_seg = quantidade_por_volume(valor2_seg_pr)
+        disponivel_azul_seg = quantidade_por_volume(valor3_seg_outros)
+
+        saldo_amarela_seg = max(
+            0,
+            disponivel_amarela_seg - usadas_amarela_seg
+        )
+
+        saldo_laranja_seg = max(
+            0,
+            disponivel_laranja_seg - usadas_laranja_seg
+        )
+
+        saldo_azul_seg = max(
+            0,
+            disponivel_azul_seg - usadas_azul_seg
+        )
 
     with cd2:
         st.markdown("**Restante:**")
@@ -349,8 +452,16 @@ with col_seg:
         linha_laranja = "🟧" * saldo_laranja_seg
         linha_azul = "🟦" * saldo_azul_seg
 
-        st.write(f"{linha_amarela}{linha_laranja}" if (linha_amarela or linha_laranja) else "Sem amarelas/laranjas")
-
+        st.write('')
+        st.write('')
+        st.write(f"{linha_amarela}" if linha_amarela else "Sem amarelas")
+        st.write('')
+        st.write('')
+        st.write('')
+        st.write(f"{linha_laranja}" if  linha_laranja else "Sem laranjas")
+        st.write('')
+        st.write('')
+        st.write('')
         st.write(f"{linha_azul}" if linha_azul else "Sem azuis")
 
 # --- COLUNA: TERÇA-FEIRA ---
@@ -401,11 +512,6 @@ with col_ter:
     usadas_laranja_ter = todas_ter.count("🟧")
     usadas_azul_ter = todas_ter.count("🟦")
 
-    # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
-    saldo_amarela_ter = max(0, 4 - usadas_amarela_ter)
-    saldo_laranja_ter = max(0, 0 - usadas_laranja_ter)
-    saldo_azul_ter = max(0, 7 - usadas_azul_ter)
-
     # Exibição dos Dados e do Estoque Atualizado de Terça
     st.write("---")
 
@@ -413,20 +519,47 @@ with col_ter:
 
     with cdt1:
         st.markdown("**Terça-feira**")
-        valor1_ter_sp = st.number_input("SP (18:00)  ",key="valor1_ter_sp")
-        valor2_ter_pr = st.number_input("PR (18:01)  ", key="valor2_ter_pr")
-        valor3_ter_outros = st.number_input("RS/SC/MG/RJ (18:30)   ", key="valor3_ter_outros")
+        valor1_ter_sp = int(st.number_input("SP (18:00)  ",key="valor1_ter_sp"))
+        valor2_ter_pr = int(st.number_input("PR (18:01)  ", key="valor2_ter_pr"))
+        valor3_ter_outros = int(st.number_input("RS/SC/MG/RJ (18:30)   ", key="valor3_ter_outros"))
 
         st.metric("Total Dia", f"{valor1_ter_sp + valor2_ter_pr + valor3_ter_outros:,}".replace(",", "."))
+
+        disponivel_amarela_ter = quantidade_por_volume(valor1_ter_sp)
+        disponivel_laranja_ter = quantidade_por_volume(valor2_ter_pr)
+        disponivel_azul_ter = quantidade_por_volume(valor3_ter_outros)
+
+        saldo_amarela_ter = max(
+            0,
+            disponivel_amarela_ter - usadas_amarela_ter
+        )
+
+        saldo_laranja_ter = max(
+            0,
+            disponivel_laranja_ter - usadas_laranja_ter
+        )
+
+        saldo_azul_ter = max(
+            0,
+            disponivel_azul_ter - usadas_azul_ter
+        )
 
     with cdt2:
         st.markdown("**Restante:**")
         linha_amarela_t = "🟨" * saldo_amarela_ter
         linha_laranja_t = "🟧" * saldo_laranja_ter
         linha_azul_t = "🟦" * saldo_azul_ter
-       
-        st.write(f"{linha_amarela_t}" if (linha_amarela_t) else "Sem amarelas")
 
+        st.write("")
+        st.write("")
+        st.write(f"{linha_amarela_t}" if (linha_amarela_t) else "Sem amarelas")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write(f"{linha_laranja_t}" if (linha_laranja_t) else "Sem laranjas")
+        st.write("")
+        st.write("")
+        st.write("")
         st.write(f"{linha_azul_t}" if linha_azul_t else "Sem azuis")
 
 # --- COLUNA: QUARTA-FEIRA ---
@@ -476,11 +609,6 @@ with col_qua:
     usadas_laranja_qua = todas_qua.count("🟧")
     usadas_azul_qua = todas_qua.count("🟦")
 
-    # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
-    saldo_amarela_qua = max(0, 7 - usadas_amarela_qua)
-    saldo_laranja_qua = max(0, 2 - usadas_laranja_qua)
-    saldo_azul_qua = max(0, 4 - usadas_azul_qua)
-
     # Exibição dos Dados e do Estoque Atualizado de Quarta
     st.write("---")
 
@@ -488,20 +616,47 @@ with col_qua:
 
     with cdq1:
         st.markdown("**Quarta-feira**")
-        valor1_qua_sp = st.number_input("SP (18:00)  ", key="valor1_qua_sp")
-        valor2_qua_pr = st.number_input("PR (18:01) ",  key="valor2_qua_pr")
-        valor3_qua_outros = st.number_input("RS/SC/MG/RJ (18:30) ", key="valor3_qua_outros")
+        valor1_qua_sp = int(st.number_input("SP (18:00)  ", key="valor1_qua_sp"))
+        valor2_qua_pr = int(st.number_input("PR (18:01) ",  key="valor2_qua_pr"))
+        valor3_qua_outros = int(st.number_input("RS/SC/MG/RJ (18:30) ", key="valor3_qua_outros"))
 
         st.metric("Total Dia", f"{valor1_qua_sp + valor2_qua_pr + valor3_qua_outros:,}".replace(",", "."))
+
+        disponivel_amarela_qua = quantidade_por_volume(valor1_qua_sp)
+        disponivel_laranja_qua = quantidade_por_volume(valor2_qua_pr)
+        disponivel_azul_qua = quantidade_por_volume(valor3_qua_outros)
+
+        saldo_amarela_qua = max(
+            0,
+            disponivel_amarela_qua - usadas_amarela_qua
+        )
+
+        saldo_laranja_qua = max(
+            0,
+            disponivel_laranja_qua - usadas_laranja_qua
+        )
+
+        saldo_azul_qua = max(
+            0,
+            disponivel_azul_qua - usadas_azul_qua
+        )
 
     with cdq2:
         st.markdown("**Restante:**")
         linha_amarela_q = "🟨" * saldo_amarela_qua
         linha_laranja_q = "🟧" * saldo_laranja_qua
         linha_azul_q = "🟦" * saldo_azul_qua
-       
-        st.write(f"{linha_amarela_q}{linha_laranja_q}" if (linha_amarela_q or linha_laranja_q) else "Sem amarelas/laranjas")
 
+        st.write("")
+        st.write("")
+        st.write(f"{linha_amarela_q}" if linha_amarela_q else "Sem amarelas")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write(f"{linha_laranja_q}" if linha_laranja_q else "Sem laranjas")
+        st.write("")
+        st.write("")
+        st.write("")
         st.write(f"{linha_azul_q}" if linha_azul_q else "Sem azuis")
 
 # --- COLUNA: QUINTA-FEIRA ---
@@ -550,11 +705,6 @@ with col_qui:
     usadas_laranja_qui = todas_qui.count("🟧")
     usadas_azul_qui = todas_qui.count("🟦")
 
-    # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
-    saldo_amarela_qui = max(0, 4 - usadas_amarela_qui)
-    saldo_laranja_qui = max(0, 0 - usadas_laranja_qui)
-    saldo_azul_qui = max(0, 8 - usadas_azul_qui)
-
     # Exibição dos Dados e do Estoque Atualizado de Quinta
     st.write("---")
 
@@ -562,20 +712,47 @@ with col_qui:
 
     with cdqu1:
         st.markdown("**Quinta-feira**")
-        valor1_qui_sp = st.number_input("SP (18:00)", key="valor1_qui_sp")
-        valor2_qui_pr = st.number_input("PR (18:01)", key="valor2_qui_pr")
-        valor3_qui_outros = st.number_input("RS/SC/MG/RJ (18:30)", key="valor3_qui_outros")
+        valor1_qui_sp = int(st.number_input("SP (18:00)", key="valor1_qui_sp"))
+        valor2_qui_pr = int(st.number_input("PR (18:01)", key="valor2_qui_pr"))
+        valor3_qui_outros = int(st.number_input("RS/SC/MG/RJ (18:30)", key="valor3_qui_outros"))
 
         st.metric("Total Dia", f"{valor1_qui_sp + valor2_qui_pr + valor3_qui_outros:,}".replace(",", "."))
+
+        disponivel_amarela_qui = quantidade_por_volume(valor1_qui_sp)
+        disponivel_laranja_qui = quantidade_por_volume(valor2_qui_pr)
+        disponivel_azul_qui = quantidade_por_volume(valor3_qui_outros)
+
+        saldo_amarela_qui = max(
+            0,
+            disponivel_amarela_qui - usadas_amarela_qui
+        )
+
+        saldo_laranja_qui = max(
+            0,
+            disponivel_laranja_qui - usadas_laranja_qui
+        )
+
+        saldo_azul_qui = max(
+            0,
+            disponivel_azul_qui - usadas_azul_qui
+        )
 
     with cdqu2:
         st.markdown("**Restante:**")
         linha_amarela_qu = "🟨" * saldo_amarela_qui
         linha_laranja_qu = "🟧" * saldo_laranja_qui
         linha_azul_qu = "🟦" * saldo_azul_qui
-       
-        st.write(f"{linha_amarela_qu}" if (linha_amarela_qu) else "Sem amarelas/laranjas")
 
+        st.write("")
+        st.write("")
+        st.write(f"{linha_amarela_qu}" if (linha_amarela_qu) else "Sem amarelas")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write(f"{linha_laranja_qu}" if (linha_laranja_qu) else "Sem laranjas")
+        st.write("")
+        st.write("")
+        st.write("")
         st.write(f"{linha_azul_qu}" if linha_azul_qu else "Sem azuis")
 
 # --- COLUNA: SEXTA-FEIRA ---
@@ -624,11 +801,6 @@ with col_sex:
     usadas_laranja_sex = todas_sex.count("🟧")
     usadas_azul_sex = todas_sex.count("🟦")
 
-    # Estoque Inicial da Imagem: 5 Amarelas, 0 Laranja, 8 Azuis
-    saldo_amarela_sex = max(0, 4 - usadas_amarela_sex)
-    saldo_laranja_sex = max(0, 1 - usadas_laranja_sex)
-    saldo_azul_sex = max(0, 6 - usadas_azul_sex)
-
     # Exibição dos Dados e do Estoque Atualizado de Sexta
     st.write("---")
 
@@ -636,11 +808,30 @@ with col_sex:
 
     with cdsex1:
         st.markdown("**Sexta-feira**")
-        valor1_sex_sp = st.number_input("SP (18:00) ", key="valor1_sex_sp")
-        valor2_sex_pr = st.number_input("PR (18:01) ", key="valor2_sex_pr")
-        valor3_sex_outros = st.number_input("RS/SC/MG/RJ (18:30) ", key="valor3_sex_outros")
+        valor1_sex_sp = int(st.number_input("SP (18:00) ", key="valor1_sex_sp"))
+        valor2_sex_pr = int(st.number_input("PR (18:01) ", key="valor2_sex_pr"))
+        valor3_sex_outros = int(st.number_input("RS/SC/MG/RJ (18:30) ", key="valor3_sex_outros"))   
 
         st.metric("Total Dia", f"{valor1_sex_sp + valor2_sex_pr + valor3_sex_outros:,}".replace(",", "."))
+
+        disponivel_amarela_sex = quantidade_por_volume(valor1_sex_sp)
+        disponivel_laranja_sex = quantidade_por_volume(valor2_sex_pr)
+        disponivel_azul_sex = quantidade_por_volume(valor3_sex_outros)
+
+        saldo_amarela_sex = max(
+            0,
+            disponivel_amarela_sex - usadas_amarela_sex
+        )
+
+        saldo_laranja_sex = max(
+            0,
+            disponivel_laranja_sex - usadas_laranja_sex
+        )
+
+        saldo_azul_sex = max(
+            0,
+            disponivel_azul_sex - usadas_azul_sex
+        )
 
     with cdsex2:
         st.markdown("**Restante:**")
@@ -648,8 +839,16 @@ with col_sex:
         linha_laranja_sex = "🟧" * saldo_laranja_sex
         linha_azul_sex = "🟦" * saldo_azul_sex
 
-        st.write(f"{linha_amarela_sex}{linha_laranja_sex}" if (linha_amarela_sex or linha_laranja_sex) else "Sem amarelas/laranjas")
-
+        st.write("")
+        st.write("")
+        st.write(f"{linha_amarela_sex}" if linha_amarela_sex  else "Sem amarelas")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write(f"{linha_laranja_sex}" if linha_laranja_sex else "Sem laranjas")
+        st.write("")
+        st.write("")
+        st.write("")
         st.write(f"{linha_azul_sex}" if linha_azul_sex else "Sem azuis")
 
 # Somando as regiões
@@ -685,17 +884,19 @@ with col_sab:
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Sab Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sabado_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["sabado"][i] = opcao
+    
+    st.write("")
 
-    st.write('')
-    st.write('')
-    st.write('')
-    st.write('')
-    st.write('')
-    st.write('')
-    st.write('')
-    st.write('')
-    st.write('')
-    st.write('')
+    # Caixa do turno da Noite (Sexta)
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+
+        for i in range(4):
+            col_alvo = c1 if i % 2 == 0 else c2
+            opcao = col_alvo.selectbox(f"Sab Noite P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sabado_n_{i}", label_visibility="collapsed")
+            st.session_state.bolinhas["sabado_noite"][i] = opcao
+
+
     st.write("---")
     
     cdsab1, cdsab2 = st.columns(2)
@@ -707,3 +908,4 @@ with col_sab:
         outros_total_semana = st.number_input("RS/SC/MG/RJ       ", value=outros_total_semana, disabled=True)
 
         st.metric("Total Semana", f"{sp_total_semana + pr_total_semana + outros_total_semana:,}".replace(",", "."))
+

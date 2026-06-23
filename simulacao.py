@@ -121,16 +121,16 @@ st.write('')
 
 info1, info2 , info3= st.columns([0.45, 1.5, 1.5])
 
-with info1:
+#with info1:
     # Adicionando o GIF com borda arredondada via HTML para estética limpa
-    st.markdown(
-        """
-        <div style="padding: 10px; border-radius: 10px; display: flex; justify-content: center; align-items: center;">
-            <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExanRiOTFlYW80em5sZHNlYmkyd2Jyd282anN5emF6anFzbmo3ZW8zdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l46Cy1rHbQ92uuLXa/giphy.gif" style="width: 100%; border-radius: 4px;">
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
+    #st.markdown(
+        #"""
+        #<div style="padding: 10px; border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+            #<img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExanRiOTFlYW80em5sZHNlYmkyd2Jyd282anN5emF6anFzbmo3ZW8zdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l46Cy1rHbQ92uuLXa/giphy.gif" style="width: 100%; border-radius: 4px;">
+        #</div>
+        #""", 
+        #unsafe_allow_html=True
+    #)
 # https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXpzMXNhdDlsMWtsdjQ3ajJmN3RyMGJyMWV6amtoZG5jbTNjZ3M1dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6ZsUk0jb6m80uAg0/giphy.gif
 # https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXdiZDg2bHJ3ZmRvcTV5dTVwZjM0aHhxa3dzYmxwOWtjeGVhdHJpNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPEqDGUULpEU0aQ/giphy.gif
 # https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExanRiOTFlYW80em5sZHNlYmkyd2Jyd282anN5emF6anFzbmo3ZW8zdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l46Cy1rHbQ92uuLXa/giphy.gif

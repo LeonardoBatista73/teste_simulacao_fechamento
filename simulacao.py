@@ -186,7 +186,7 @@ with info2:
     ">
         <h4 style="margin-top:0;">ℹ️ Informações</h4>
         <p>
-            Cada círculo = 10.000 endereços
+            Cada quadrado = 10.000 endereços
         </p>
         <p>
             Total de volume carregado = 80.000 endereços
@@ -221,7 +221,7 @@ with info3:
 
 st.write('')
 
-btn1, btn2, btn3, btn4 = st.columns([0.1, 0.1, 0.1 ,1.7])
+btn1, btn2, btn3, btn4 = st.columns([0.1, 0.1, 0.1 ,1.6])
 
 with btn1:
     st.write("")

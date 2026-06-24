@@ -200,7 +200,6 @@ with info1:
         "giphy (1).gif")
 
 with info2:
-
     st.markdown("""
     <div style="
         background-color: #262730;

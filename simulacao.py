@@ -36,7 +36,6 @@ if not st.session_state.logado:
     st.stop() 
 
 # Cria o cabeçalho: Título à esquerda e botão Sair à direita
-
 topo_esquerda, topo_direita = st.columns([5, 1])
 
 with topo_esquerda:
@@ -137,12 +136,23 @@ with top3:
 
 def qtd_noite():
     return {
+        "70 mil": 3,
         "100 mil": 4,
         "110 mil": 5,
         "120 mil": 6
-    }.get(st.session_state.cenario, 4)
+    }.get(st.session_state.cenario, 3)
 
 qtd = qtd_noite()
+
+def qtd_dia():
+    return {
+        "70 mil" : 3,
+        "100 mil": 4,
+        "110 mil": 5,
+        "120 mil": 6
+    }.get(st.session_state.cenario, 3)
+
+qtd_dia = qtd_dia()
 
 if "bolinhas" in st.session_state:
 
@@ -163,6 +173,15 @@ if "bolinhas" in st.session_state:
         elif len(atual) > qtd:
             st.session_state.bolinhas[chave] = atual[:qtd]
 
+     for chave_dia in ["seg_dia", "ter_dia", "qua_dia", "qui_dia", "sex_dia", "sabado"]:
+        if chave_dia in st.session_state.bolinhas:  # Boa prática para evitar KeyError
+            atual_dia = st.session_state.bolinhas[chave_dia]
+            
+            if len(atual_dia) < qtd_dia:
+                atual_dia.extend(["Vazio"] * (qtd_dia - len(atual_dia)))
+                
+            elif len(atual_dia) > qtd_dia:
+                st.session_state.bolinhas[chave_dia] = atual_dia[:qtd_dia]
 
 st.write('')
 
@@ -384,17 +403,17 @@ def quantidade_por_volume(valor):
 
 if "bolinhas" not in st.session_state:
     st.session_state.bolinhas = {
-        "seg_dia": ["Vazio"] * 4,
+        "seg_dia": ["Vazio"] * qtd_dia(),
         "seg_noite": ["Vazio"] * qtd_noite(),
-        "ter_dia": ["Vazio"] * 4,
+        "ter_dia": ["Vazio"] * qtd_dia(),
         "ter_noite": ["Vazio"] * qtd_noite(),
-        "qua_dia": ["Vazio"] * 4,
+        "qua_dia": ["Vazio"] * qtd_dia(),
         "qua_noite": ["Vazio"] * qtd_noite(),
-        "qui_dia": ["Vazio"] * 4,
+        "qui_dia": ["Vazio"] * qtd_dia(),
         "qui_noite": ["Vazio"] * qtd_noite(),
-        "sex_dia": ["Vazio"] * 4,
+        "sex_dia": ["Vazio"] * qtd_dia(),
         "sex_noite": ["Vazio"] * qtd_noite(),
-        "sabado": ["Vazio"] * 4,
+        "sabado": ["Vazio"] * qtd_dia(),
         "sabado_noite": ["Vazio"] * qtd_noite()
     }
 
@@ -436,7 +455,7 @@ with col_seg:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_dia()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Seg Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"s_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["seg_dia"][i] = opcao
@@ -511,7 +530,6 @@ with col_seg:
         st.write(f"{linha_azul}" if linha_azul else "Sem azuis")
 
 # --- COLUNA: TERÇA-FEIRA ---
-
 with col_ter:
     col_titulo_ter, col_data_ter = st.columns([2, 3])
 
@@ -534,7 +552,7 @@ with col_ter:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_dia()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Ter Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"t_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["ter_dia"][i] = opcao
@@ -609,7 +627,6 @@ with col_ter:
         st.write(f"{linha_azul_t}" if linha_azul_t else "Sem azuis")
 
 # --- COLUNA: QUARTA-FEIRA ---
-
 with col_qua:
     col_titulo_qua, col_data_qua = st.columns([2, 3])
 
@@ -631,7 +648,7 @@ with col_qua:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_dia()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Qua Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"q_d_{i}", label_visibility="collapsed")
 
@@ -706,7 +723,6 @@ with col_qua:
         st.write(f"{linha_azul_q}" if linha_azul_q else "Sem azuis")
 
 # --- COLUNA: QUINTA-FEIRA ---
-
 with col_qui:
     col_titulo_qui, col_data_qui = st.columns([2, 3])
 
@@ -728,7 +744,7 @@ with col_qui:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_dia()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Qui Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"qu_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["qui_dia"][i] = opcao
@@ -823,7 +839,7 @@ with col_sex:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_dia()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Sex Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sex_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["sex_dia"][i] = opcao
@@ -926,7 +942,7 @@ with col_sab:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_dia()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Sab Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sabado_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["sabado"][i] = opcao

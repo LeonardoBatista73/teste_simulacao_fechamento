@@ -463,7 +463,7 @@ with col_seg:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(qtd_dia()):
+        for i in range(qtd_dia):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Seg Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"s_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["seg_dia"][i] = opcao

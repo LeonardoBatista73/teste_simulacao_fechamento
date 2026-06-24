@@ -133,7 +133,7 @@ with top2:
 with top3:
     pass
     st.write("")
-    st.info(f'{cenario}')
+    st.info(f'Simulador operando no layout para **{cenario}** endereços!')
 
 def qtd_noite():
     return {
@@ -385,17 +385,17 @@ def quantidade_por_volume(valor):
 if "bolinhas" not in st.session_state:
     st.session_state.bolinhas = {
         "seg_dia": ["Vazio"] * 4,
-        "seg_noite": ["Vazio"] * qtd_noite,
+        "seg_noite": ["Vazio"] * qtd_noite(),
         "ter_dia": ["Vazio"] * 4,
-        "ter_noite": ["Vazio"] * qtd_noite,
+        "ter_noite": ["Vazio"] * qtd_noite(),
         "qua_dia": ["Vazio"] * 4,
-        "qua_noite": ["Vazio"] * qtd_noite,
+        "qua_noite": ["Vazio"] * qtd_noite(),
         "qui_dia": ["Vazio"] * 4,
-        "qui_noite": ["Vazio"] * qtd_noite,
+        "qui_noite": ["Vazio"] * qtd_noite(),
         "sex_dia": ["Vazio"] * 4,
-        "sex_noite": ["Vazio"] * qtd_noite,
+        "sex_noite": ["Vazio"] * qtd_noite(),
         "sabado": ["Vazio"] * 4,
-        "sabado_noite": ["Vazio"] * qtd_noite
+        "sabado_noite": ["Vazio"] * qtd_noite()
     }
 
 # Deletar session para inclusão de campos
@@ -454,7 +454,7 @@ with col_seg:
 
     # --- CÁLCULO DO ESTOQUE DA SEGUNDA ---
     # Conta quantas de cada cor foram usadas na segunda (somando dia e noite)
-    todas_seg = [st.session_state[f"s_d_{i}"]for i in range(4)] + [st.session_state[f"s_n_{i}"]for i in range(4)]
+    todas_seg = [st.session_state[f"s_d_{i}"]for i in range(4)] + [st.session_state[f"s_n_{i}"]for i in range(qtd_noite())]
     usadas_amarela_seg = todas_seg.count("🟨")
     usadas_laranja_seg = todas_seg.count("🟧")
     usadas_azul_seg = todas_seg.count("🟦")
@@ -553,7 +553,7 @@ with col_ter:
     # --- CÁLCULO DO ESTOQUE DA TERÇA ---
     # Conta quantas de cada cor foram usadas na terça
 
-    todas_ter = [st.session_state[f"t_d_{i}"]for i in range(4)] + [st.session_state[f"t_n_{i}"]for i in range(4)]
+    todas_ter = [st.session_state[f"t_d_{i}"]for i in range(4)] + [st.session_state[f"t_n_{i}"]for i in range(qtd_noite())]
     usadas_amarela_ter = todas_ter.count("🟨")
     usadas_laranja_ter = todas_ter.count("🟧")
     usadas_azul_ter = todas_ter.count("🟦")
@@ -650,7 +650,7 @@ with col_qua:
 
     # --- CÁLCULO DO ESTOQUE DA QUARTA ---
     # Conta quantas de cada cor foram usadas na Quarta
-    todas_qua = [st.session_state[f"q_d_{i}"]for i in range(4)] + [st.session_state[f"q_n_{i}"]for i in range(4)]
+    todas_qua = [st.session_state[f"q_d_{i}"]for i in range(4)] + [st.session_state[f"q_n_{i}"]for i in range(qtd_noite())]
     usadas_amarela_qua = todas_qua.count("🟨")
     usadas_laranja_qua = todas_qua.count("🟧")
     usadas_azul_qua = todas_qua.count("🟦")
@@ -746,7 +746,7 @@ with col_qui:
 
     # --- CÁLCULO DO ESTOQUE DA QUINTA ---
     # Conta quantas de cada cor foram usadas na Quinta
-    todas_qui = [st.session_state[f"qu_d_{i}"]for i in range(4)] + [st.session_state[f"qu_n_{i}"]for i in range(4)]
+    todas_qui = [st.session_state[f"qu_d_{i}"]for i in range(4)] + [st.session_state[f"qu_n_{i}"]for i in range(qtd_noite())]
     usadas_amarela_qui = todas_qui.count("🟨")
     usadas_laranja_qui = todas_qui.count("🟧")
     usadas_azul_qui = todas_qui.count("🟦")
@@ -842,7 +842,7 @@ with col_sex:
     # --- CÁLCULO DO ESTOQUE DA Sexta ---
     # Conta quantas de cada cor foram usadas na Sexta
 
-    todas_sex = [st.session_state[f"sex_d_{i}"]for i in range(4)] + [st.session_state[f"sex_n_{i}"]for i in range(4)]
+    todas_sex = [st.session_state[f"sex_d_{i}"]for i in range(4)] + [st.session_state[f"sex_n_{i}"]for i in range(qtd_noite())]
     usadas_amarela_sex = todas_sex.count("🟨")
     usadas_laranja_sex = todas_sex.count("🟧")
     usadas_azul_sex = todas_sex.count("🟦")

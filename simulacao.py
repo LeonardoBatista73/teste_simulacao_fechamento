@@ -125,7 +125,7 @@ prefixo = "sem1" if semana == "Semana 1" else "sem2"
 with top2:
     cenario = st.selectbox(
         "⚙️ Cenário",
-        ["100 mil", "110 mil", "120 mil"],
+        ["70 mil", "100 mil", "110 mil", "120 mil"],
         key="cenario"
     )
 

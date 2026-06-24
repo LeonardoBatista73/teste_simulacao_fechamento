@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 from datetime import date
 from datetime import date, timedelta
+import time
 import math
 
 # 1. Configuração inicial
@@ -41,14 +42,14 @@ topo_esquerda, topo_direita = st.columns([5, 1])
 with topo_esquerda:
     st.title("📊 Simulador de Fechamento")
     
+st.write("_________")
+
 with topo_direita:
     # Espaçamento para alinhar verticalmente com o título
     st.write("") 
     if st.button("Sair", type="primary", use_container_width=True):
         st.session_state.logado = False
         st.rerun()
-
-st.write("---")
 
 ARQUIVO_DADOS = "dados_planejamento.json"
 
@@ -94,7 +95,7 @@ if "dados_restaurados" not in st.session_state:
 
     st.session_state["dados_restaurados"] = True
 
-top1, top2, top3 = st.columns([1, 2, 1])
+top1, top2, top3 = st.columns([2, 2, 7.5])
 
 # Obter datas para os campos de data
 def obter_datas_semana_atual():
@@ -111,37 +112,73 @@ def obter_datas_semana_atual():
         "data_sab": segunda + timedelta(days=5),
     }
 
+if "cenario_backup" in st.session_state:
+    st.session_state["cenario"] = st.session_state.pop("cenario_backup")
+
+with top1:
+    semana = st.selectbox(
+        "📅 Semana",
+        ["Semana 1", "Semana 2"])
+
+# Ajuste prefixos
+prefixo = "sem1" if semana == "Semana 1" else "sem2"
+
 with top2:
     cenario = st.selectbox(
         "⚙️ Cenário",
-        ["100 mil", "110 mil", "120 mil"]
+        ["100 mil", "110 mil", "120 mil"],
+        key="cenario"
     )
+
+with top3:
+    pass
+    st.write("")
+    st.info(f'{cenario}')
+
+def qtd_noite():
+    return {
+        "100 mil": 4,
+        "110 mil": 5,
+        "120 mil": 6
+    }.get(st.session_state.cenario, 4)
+
+qtd = qtd_noite()
+
+if "bolinhas" in st.session_state:
+
+    for chave in [
+        "seg_noite",
+        "ter_noite",
+        "qua_noite",
+        "qui_noite",
+        "sex_noite",
+        "sabado_noite"
+    ]:
+
+        atual = st.session_state.bolinhas[chave]
+
+        if len(atual) < qtd:
+            atual.extend(["Vazio"] * (qtd - len(atual)))
+
+        elif len(atual) > qtd:
+            st.session_state.bolinhas[chave] = atual[:qtd]
+
 
 st.write('')
 
-info1, info2 , info3= st.columns([0.45, 1.5, 1.5])
+info1, info2 , info3= st.columns([0.365, 1.5, 1.5])
 
-#with info1:
-    # Adicionando o GIF com borda arredondada via HTML para estética limpa
-    #st.markdown(
-        #"""
-        #<div style="padding: 10px; border-radius: 10px; display: flex; justify-content: center; align-items: center;">
-            #<img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExanRiOTFlYW80em5sZHNlYmkyd2Jyd282anN5emF6anFzbmo3ZW8zdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l46Cy1rHbQ92uuLXa/giphy.gif" style="width: 100%; border-radius: 4px;">
-        #</div>
-        #""", 
-        #unsafe_allow_html=True
-    #)
-# https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXpzMXNhdDlsMWtsdjQ3ajJmN3RyMGJyMWV6amtoZG5jbTNjZ3M1dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6ZsUk0jb6m80uAg0/giphy.gif
-# https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXdiZDg2bHJ3ZmRvcTV5dTVwZjM0aHhxa3dzYmxwOWtjeGVhdHJpNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPEqDGUULpEU0aQ/giphy.gif
-# https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExanRiOTFlYW80em5sZHNlYmkyd2Jyd282anN5emF6anFzbmo3ZW8zdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l46Cy1rHbQ92uuLXa/giphy.gif
-# https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExenZnbDM3YzlhZ3M3OHNpMGh5ZTE0bjQyOHBubTlkeGozMm42OHB3dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dWesBcTLavkZuG35MI/giphy.gif
+with info1:
+    st.write("")
+    st.image(
+        "giphy (1).gif")
 
 with info2:
 
     st.markdown("""
     <div style="
         background-color: #262730;
-        border-left: 5px solid #0078d4;
+        border-left: 5px solid #262730;
         padding: 8px;
         font-size: 16px;
         border-radius: 5px;
@@ -162,21 +199,21 @@ with info3:
     st.markdown("""
     <div style="
         background-color: #262730;
-        border-left: 6px solid #0078d4;
+        border-left: 6px solid #262730;
         padding: 12px;
         border-radius: 5px;
         margin: 8px 0;
-        font-size: 16px;
-        line-height: 1.65;
+        font-size: 18px;
+        line-height: 1.48;
     ">
         <p>
-            🟨: Fechamento de SP (⏰18:00)
+            🟨 Fechamento de SP (⏰18:00)
         </p>
         <p>
-            🟦: Fechamento de outros estados (⏰18:30)
+            🟦 Fechamento de outros estados (⏰18:30)
         </p>
         <p>
-            🟧: Fechamento de Londrina (⏰18:01)
+            🟧 Fechamento de Londrina (⏰18:01)
         </p>
     </div>
 
@@ -184,7 +221,7 @@ with info3:
 
 st.write('')
 
-btn1, btn2, btn3, btn4 = st.columns([0.1, 0.1, 0.1 ,1.7])
+btn1, btn2, btn3, btn4 = st.columns([0.1, 0.1, 0.1 ,1.6])
 
 with btn1:
     st.write("")
@@ -218,6 +255,7 @@ with btn2:
 
     for chave, valor in st.session_state.items():
 
+
         if chave in IGNORAR:
             continue
 
@@ -230,6 +268,9 @@ with btn2:
 
         except TypeError:
             pass
+    
+    # Salva o cenário atual
+    dados_exportacao["cenario"] = st.session_state.get("cenario", "100 mil")
             
     json_download = json.dumps(
         dados_exportacao,
@@ -244,7 +285,7 @@ with btn2:
         file_name=f"planejamento_{datetime.now().strftime('%Y%m%d_%H%M')}.json",
         mime="application/json"
     )
-
+    
 with btn3:
     st.write("")
     if st.button("🆕 Novo Layout"):
@@ -279,7 +320,8 @@ with btn3:
 
         salvar_dados()
 
-        st.success("Iniciado!")
+        st.toast("Novo layout iniciado!", icon="✔️")
+        time.sleep(2)
         st.rerun()
 
 with btn4:
@@ -304,7 +346,9 @@ with btn4:
                         "bolinhas"
                     ]:
                         continue
-
+                    if chave == "cenario":
+                        st.session_state["cenario_backup"] = valor
+                        continue       
                     if chave.startswith("data_") and isinstance(valor, str):
 
                         try:
@@ -318,8 +362,10 @@ with btn4:
                     st.session_state[chave] = valor
 
                 salvar_dados()
-                
-                st.success("Backup restaurado!")
+            
+                st.toast("Backup restaurado com sucesso!", icon="📃")
+                time.sleep(2)
+                st.rerun()
 
             except Exception as erro:
 
@@ -339,17 +385,17 @@ def quantidade_por_volume(valor):
 if "bolinhas" not in st.session_state:
     st.session_state.bolinhas = {
         "seg_dia": ["Vazio"] * 4,
-        "seg_noite": ["Vazio"] * 4,
+        "seg_noite": ["Vazio"] * qtd_noite,
         "ter_dia": ["Vazio"] * 4,
-        "ter_noite": ["Vazio"] * 4,
+        "ter_noite": ["Vazio"] * qtd_noite,
         "qua_dia": ["Vazio"] * 4,
-        "qua_noite": ["Vazio"] * 4,
+        "qua_noite": ["Vazio"] * qtd_noite,
         "qui_dia": ["Vazio"] * 4,
-        "qui_noite": ["Vazio"] * 4,
+        "qui_noite": ["Vazio"] * qtd_noite,
         "sex_dia": ["Vazio"] * 4,
-        "sex_noite": ["Vazio"] * 4,
+        "sex_noite": ["Vazio"] * qtd_noite,
         "sabado": ["Vazio"] * 4,
-        "sabado_noite": ["Vazio"] * 4
+        "sabado_noite": ["Vazio"] * qtd_noite
     }
 
 # Deletar session para inclusão de campos
@@ -401,7 +447,7 @@ with col_seg:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_noite()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Seg Noite P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"s_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["seg_noite"][i] = opcao
@@ -499,7 +545,7 @@ with col_ter:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_noite()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Ter Noite P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"t_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["ter_noite"][i] = opcao
@@ -597,7 +643,7 @@ with col_qua:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_noite()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Qua Noite P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"q_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["qua_noite"][i] = opcao
@@ -693,7 +739,7 @@ with col_qui:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_noite()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Qui Noite P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"qu_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["qui_noite"][i] = opcao
@@ -788,7 +834,7 @@ with col_sex:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_noite()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Sex Noite P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sex_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["sex_noite"][i] = opcao
@@ -876,7 +922,7 @@ with col_sab:
             label_visibility="collapsed"
         )
 
-    # Caixa do turno do Dia (Sexta)
+    # Caixa do turno do Dia (Sabado)
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
@@ -887,11 +933,11 @@ with col_sab:
     
     st.write("")
 
-    # Caixa do turno da Noite (Sexta)
+    # Caixa do turno da Noite (Sabado)
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(4):
+        for i in range(qtd_noite()):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Sab Noite P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sabado_n_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["sabado_noite"][i] = opcao
@@ -903,9 +949,9 @@ with col_sab:
 
     with cdsab1:
         st.markdown("**Total**")
-        sp_total_semana = st.number_input("SP      ", value=sp_total_semana, disabled=True)
-        pr_total_semana = st.number_input("PR      ", value=pr_total_semana, disabled=True)
-        outros_total_semana = st.number_input("RS/SC/MG/RJ       ", value=outros_total_semana, disabled=True)
+        sp_total_semana = st.number_input("SP(18:00)      ", value=sp_total_semana, disabled=True)
+        pr_total_semana = st.number_input("PR(18:01)      ", value=pr_total_semana, disabled=True)
+        outros_total_semana = st.number_input("RS/SC/MG/RJ(18:30)       ", value=outros_total_semana, disabled=True)
 
         st.metric("Total Semana", f"{sp_total_semana + pr_total_semana + outros_total_semana:,}".replace(",", "."))
 

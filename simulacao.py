@@ -137,18 +137,9 @@ with top3:
 
 def qtd_noite():
     return {
-        "70 mil": 3,
         "100 mil": 4,
         "110 mil": 5,
         "120 mil": 6
-    }.get(st.session_state.cenario, 4)
-
-def qtd_dia():
-    return {
-        "70 mil": 3,
-        "100 mil": 4,
-        "110 mil": 4,
-        "120 mil": 4,
     }.get(st.session_state.cenario, 4)
 
 qtd = qtd_noite()
@@ -166,11 +157,12 @@ if "bolinhas" in st.session_state:
 
         atual = st.session_state.bolinhas[chave]
 
-        if len(atual) < :
-            atual.extend(["Vazio"] * ( - len(atual)))
+        if len(atual) < qtd:
+            atual.extend(["Vazio"] * (qtd - len(atual)))
 
-        elif len(atual) > :
+        elif len(atual) > qtd:
             st.session_state.bolinhas[chave] = atual[:qtd]
+
 
 st.write('')
 
@@ -392,29 +384,36 @@ def quantidade_por_volume(valor):
 
 if "bolinhas" not in st.session_state:
     st.session_state.bolinhas = {
-        "seg_dia": ["Vazio"] * qtd_dia(),
+        "seg_dia": ["Vazio"] * 4,
         "seg_noite": ["Vazio"] * qtd_noite(),
-        "ter_dia": ["Vazio"] * qtd_dia(),
+        "ter_dia": ["Vazio"] * 4,
         "ter_noite": ["Vazio"] * qtd_noite(),
-        "qua_dia": ["Vazio"] * qtd_dia(),
+        "qua_dia": ["Vazio"] * 4,
         "qua_noite": ["Vazio"] * qtd_noite(),
-        "qui_dia": ["Vazio"] * qtd_dia(),
+        "qui_dia": ["Vazio"] * 4,
         "qui_noite": ["Vazio"] * qtd_noite(),
-        "sex_dia": ["Vazio"] * qtd_dia(),
+        "sex_dia": ["Vazio"] * 4,
         "sex_noite": ["Vazio"] * qtd_noite(),
-        "sabado": ["Vazio"] * qtd_dia(),
+        "sabado": ["Vazio"] * 4,
         "sabado_noite": ["Vazio"] * qtd_noite()
     }
 
+# Deletar session para inclusão de campos
+#if "bolinhas" in st.session_state:
+    #del st.session_state["bolinhas"]
+
 # Cria a estrutura de colunas na tela para organizar lado a lado
+
 col_label, col_seg, col_ter, col_qua, col_qui, col_sex, col_sab = st.columns([0.2, 1, 1, 1, 1, 1, 1])
 
 # --- COLUNA DA ESQUERDA: RÓTULOS DOS TURNOS ---
+
 with col_label:
     st.markdown("<br><br><br>**Dia**", unsafe_allow_html=True)
     st.markdown("<br><br><br><br><br><br><br>**Noite**", unsafe_allow_html=True)
 
 # --- COLUNA: SEGUNDA-FEIRA ---
+
 with col_seg:
     col_titulo_seg, col_data_seg = st.columns([2, 3])
 

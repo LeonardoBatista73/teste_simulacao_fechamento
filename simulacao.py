@@ -221,7 +221,7 @@ with info3:
 
 st.write('')
 
-btn1, btn2, btn3, btn4 = st.columns([0.1, 0.1, 0.1 ,1.6])
+btn1, btn2, btn3, btn4 = st.columns([0.1, 0.1, 0.1 ,1.7])
 
 with btn1:
     st.write("")

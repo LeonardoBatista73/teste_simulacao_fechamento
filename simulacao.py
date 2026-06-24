@@ -172,6 +172,28 @@ if "bolinhas" in st.session_state:
         elif len(atual) > :
             st.session_state.bolinhas[chave] = atual[:qtd]
 
+qtd_dia = qtd_dia()
+
+if "bolinhas" in st.session_state:
+
+    for chave in [
+        "seg_dia",
+        "ter_dia",
+        "qua_dia",
+        "qui_dia",
+        "sex_dia",
+        "sabado_dia"
+    ]:
+
+        atual = st.session_state.bolinhas[chave]
+
+        if len(atual) < :
+            atual.extend(["Vazio"] * ( - len(atual)))
+
+        elif len(atual) > :
+            st.session_state.bolinhas[chave] = atual[:qtd_dia]
+
+
 st.write('')
 
 info1, info2 , info3= st.columns([0.365, 1.5, 1.5])

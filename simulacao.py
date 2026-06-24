@@ -166,33 +166,11 @@ if "bolinhas" in st.session_state:
 
         atual = st.session_state.bolinhas[chave]
 
-    if len(atual) < :
-            atual.extend(["Vazio"] * ( - len(atual)))
-
-        elif len(atual) > :
-            st.session_state.bolinhas[chave] = atual[:qtd]
-
-qtd_dia = qtd_dia()
-
-if "bolinhas" in st.session_state:
-
-    for chave in [
-        "seg_dia",
-        "ter_dia",
-        "qua_dia",
-        "qui_dia",
-        "sex_dia",
-        "sabado_dia"
-    ]:
-
-        atual = st.session_state.bolinhas[chave]
-
         if len(atual) < :
             atual.extend(["Vazio"] * ( - len(atual)))
 
         elif len(atual) > :
-            st.session_state.bolinhas[chave] = atual[:qtd_dia]
-
+            st.session_state.bolinhas[chave] = atual[:qtd]
 
 st.write('')
 
@@ -459,7 +437,7 @@ with col_seg:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(qtd_dia()):
+        for i in range(4):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Seg Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"s_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["seg_dia"][i] = opcao
@@ -977,4 +955,3 @@ with col_sab:
         outros_total_semana = st.number_input("RS/SC/MG/RJ(18:30)       ", value=outros_total_semana, disabled=True)
 
         st.metric("Total Semana", f"{sp_total_semana + pr_total_semana + outros_total_semana:,}".replace(",", "."))
-

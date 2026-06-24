@@ -560,7 +560,7 @@ with col_ter:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(qtd_dia()):
+        for i in range(qtd_dia):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Ter Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"t_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["ter_dia"][i] = opcao
@@ -656,7 +656,7 @@ with col_qua:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(qtd_dia()):
+        for i in range(qtd_dia):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Qua Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"q_d_{i}", label_visibility="collapsed")
 
@@ -752,7 +752,7 @@ with col_qui:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(qtd_dia()):
+        for i in range(qtd_dia):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Qui Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"qu_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["qui_dia"][i] = opcao
@@ -847,7 +847,7 @@ with col_sex:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(qtd_dia()):
+        for i in range(qtd_dia):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Sex Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sex_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["sex_dia"][i] = opcao
@@ -950,7 +950,7 @@ with col_sab:
     with st.container(border=True):
         c1, c2 = st.columns(2)
 
-        for i in range(qtd_dia()):
+        for i in range(qtd_dia):
             col_alvo = c1 if i % 2 == 0 else c2
             opcao = col_alvo.selectbox(f"Sab Dia P{i+1}", ["Vazio", "🟨", "🟦", "🟧"], key=f"sabado_d_{i}", label_visibility="collapsed")
             st.session_state.bolinhas["sabado"][i] = opcao

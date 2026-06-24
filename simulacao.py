@@ -173,15 +173,23 @@ if "bolinhas" in st.session_state:
         elif len(atual) > qtd:
             st.session_state.bolinhas[chave] = atual[:qtd]
 
-     for chave_dia in ["seg_dia", "ter_dia", "qua_dia", "qui_dia", "sex_dia", "sabado"]:
-        if chave_dia in st.session_state.bolinhas:  # Boa prática para evitar KeyError
-            atual_dia = st.session_state.bolinhas[chave_dia]
-            
-            if len(atual_dia) < qtd_dia:
-                atual_dia.extend(["Vazio"] * (qtd_dia - len(atual_dia)))
-                
-            elif len(atual_dia) > qtd_dia:
-                st.session_state.bolinhas[chave_dia] = atual_dia[:qtd_dia]
+    # 2. Ajuste do Diurno (Novo código alinhado exatamente igual)
+    for chave_dia in [
+        "seg_dia",
+        "ter_dia",
+        "qua_dia",
+        "qui_dia",
+        "sex_dia",
+        "sabado"
+    ]:
+        
+        atual_dia = st.session_state.bolinhas[chave_dia]
+
+        if len(atual_dia) < qtd_dia:
+            atual_dia.extend(["Vazio"] * (qtd_dia - len(atual_dia)))
+
+        elif len(atual_dia) > qtd_dia:
+            st.session_state.bolinhas[chave_dia] = atual_dia[:qtd_dia]
 
 st.write('')
 

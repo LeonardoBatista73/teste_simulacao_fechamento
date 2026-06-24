@@ -11,7 +11,6 @@ import math
 # 1. Configuração inicial
 st.set_page_config(page_title="Simulador de Fechamento", layout="wide")
 
-
 # 2. Inicializa o estado de segurança
 if "logado" not in st.session_state:
     st.session_state.logado = False
@@ -148,8 +147,8 @@ def qtd_dia():
     return {
         "70 mil" : 3,
         "100 mil": 4,
-        "110 mil": 5,
-        "120 mil": 6
+        "110 mil": 4,
+        "120 mil": 4
     }.get(st.session_state.cenario, 3)
 
 qtd_dia = qtd_dia()

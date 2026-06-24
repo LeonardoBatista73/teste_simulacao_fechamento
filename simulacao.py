@@ -297,7 +297,7 @@ with btn2:
             pass
     
     # Salva o cenário atual
-    dados_exportacao["cenario"] = st.session_state.get("cenario", "100 mil")
+    dados_exportacao["cenario"] = st.session_state.get("cenario", "70 mil")
             
     json_download = json.dumps(
         dados_exportacao,

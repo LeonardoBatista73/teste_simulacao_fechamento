@@ -166,7 +166,7 @@ if "bolinhas" in st.session_state:
 
         atual = st.session_state.bolinhas[chave]
 
-        if len(atual) < :
+    if len(atual) < :
             atual.extend(["Vazio"] * ( - len(atual)))
 
         elif len(atual) > :

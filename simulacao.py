@@ -539,7 +539,7 @@ with col_seg:
         st.html("""
             <style>
             .caixa-cor {
-                height: 75px; /* Mesma altura do st.number_input */
+                height: 78px; /* Mesma altura do st.number_input */
                 display: flex;
                 align-items: center; /* Alinha o início das bolinhas verticalmente */
                 word-break: break-all; /* Força a quebra de linha se faltar espaço */

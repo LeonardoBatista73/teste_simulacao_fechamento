@@ -38,7 +38,7 @@ if not st.session_state.logado:
 topo_esquerda, topo_direita = st.columns([5, 1])
 
 with topo_esquerda:
-    st.title("📊 Simulador de Fechamento")
+    st.title(":control_knobs: Simulador de Fechamento")
     
 st.write("_________")
 

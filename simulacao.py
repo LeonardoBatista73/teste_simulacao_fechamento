@@ -523,18 +523,6 @@ with col_seg:
         linha_laranja = "🟧" * saldo_laranja_seg
         linha_azul = "🟦" * saldo_azul_seg
 
-        #st.write('')
-        #st.write('')
-        #st.write(f"{linha_amarela}" if linha_amarela else "Sem amarelas")
-        #st.write('')
-        #st.write('')
-        #st.write('')
-        #st.write(f"{linha_laranja}" if  linha_laranja else "Sem laranjas")
-        #st.write('')
-        #st.write('')
-        #st.write('')
-        #st.write(f"{linha_azul}" if linha_azul else "Sem azuis")
-
         # Estilo CSS para criar blocos isolados com altura fixa e alinhamento vertical
         st.html("""
             <style>
@@ -637,17 +625,22 @@ with col_ter:
         linha_laranja_t = "🟧" * saldo_laranja_ter
         linha_azul_t = "🟦" * saldo_azul_ter
 
-        st.write("")
-        st.write("")
-        st.write(f"{linha_amarela_t}" if (linha_amarela_t) else "Sem amarelas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_laranja_t}" if (linha_laranja_t) else "Sem laranjas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_azul_t}" if linha_azul_t else "Sem azuis")
+        # Estilo CSS para criar blocos isolados com altura fixa e alinhamento vertical
+        st.html("""
+            <style>
+            .caixa-cor {
+                height: 78px; /* Mesma altura do st.number_input */
+                display: flex;
+                align-items: center; /* Alinha o início das bolinhas verticalmente */
+                word-break: break-all; /* Força a quebra de linha se faltar espaço */
+            }
+            </style>
+        """)
+    
+        # Cada bloco usa st.html para garantir que a quebra de linha fique presa no container
+        st.html(f"<div class='caixa-cor'>{linha_amarela_t if linha_amarela_t else 'Sem amarelas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_laranja_t if linha_laranja_t else 'Sem laranjas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_azul_t if linha_azul_t else 'Sem azuis'}</div>")
 
 # --- COLUNA: QUARTA-FEIRA ---
 with col_qua:
@@ -733,17 +726,22 @@ with col_qua:
         linha_laranja_q = "🟧" * saldo_laranja_qua
         linha_azul_q = "🟦" * saldo_azul_qua
 
-        st.write("")
-        st.write("")
-        st.write(f"{linha_amarela_q}" if linha_amarela_q else "Sem amarelas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_laranja_q}" if linha_laranja_q else "Sem laranjas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_azul_q}" if linha_azul_q else "Sem azuis")
+        # Estilo CSS para criar blocos isolados com altura fixa e alinhamento vertical
+        st.html("""
+            <style>
+            .caixa-cor {
+                height: 78px; /* Mesma altura do st.number_input */
+                display: flex;
+                align-items: center; /* Alinha o início das bolinhas verticalmente */
+                word-break: break-all; /* Força a quebra de linha se faltar espaço */
+            }
+            </style>
+        """)
+    
+        # Cada bloco usa st.html para garantir que a quebra de linha fique presa no container
+        st.html(f"<div class='caixa-cor'>{linha_amarela_q if linha_amarela_q else 'Sem amarelas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_laranja_q if linha_laranja_q else 'Sem laranjas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_azul_q if linha_azul_q else 'Sem azuis'}</div>")
 
 # --- COLUNA: QUINTA-FEIRA ---
 with col_qui:
@@ -828,17 +826,22 @@ with col_qui:
         linha_laranja_qu = "🟧" * saldo_laranja_qui
         linha_azul_qu = "🟦" * saldo_azul_qui
 
-        st.write("")
-        st.write("")
-        st.write(f"{linha_amarela_qu}" if (linha_amarela_qu) else "Sem amarelas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_laranja_qu}" if (linha_laranja_qu) else "Sem laranjas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_azul_qu}" if linha_azul_qu else "Sem azuis")
+        # Estilo CSS para criar blocos isolados com altura fixa e alinhamento vertical
+        st.html("""
+            <style>
+            .caixa-cor {
+                height: 78px; /* Mesma altura do st.number_input */
+                display: flex;
+                align-items: center; /* Alinha o início das bolinhas verticalmente */
+                word-break: break-all; /* Força a quebra de linha se faltar espaço */
+            }
+            </style>
+        """)
+    
+        # Cada bloco usa st.html para garantir que a quebra de linha fique presa no container
+        st.html(f"<div class='caixa-cor'>{linha_amarela_qu if linha_amarela_qu else 'Sem amarelas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_laranja_qu if linha_laranja_qu else 'Sem laranjas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_azul_qu if linha_azul_qu else 'Sem azuis'}</div>")
 
 # --- COLUNA: SEXTA-FEIRA ---
 with col_sex:
@@ -924,20 +927,24 @@ with col_sex:
         linha_laranja_sex = "🟧" * saldo_laranja_sex
         linha_azul_sex = "🟦" * saldo_azul_sex
 
-        st.write("")
-        st.write("")
-        st.write(f"{linha_amarela_sex}" if linha_amarela_sex  else "Sem amarelas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_laranja_sex}" if linha_laranja_sex else "Sem laranjas")
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write(f"{linha_azul_sex}" if linha_azul_sex else "Sem azuis")
+        # Estilo CSS para criar blocos isolados com altura fixa e alinhamento vertical
+        st.html("""
+            <style>
+            .caixa-cor {
+                height: 78px; /* Mesma altura do st.number_input */
+                display: flex;
+                align-items: center; /* Alinha o início das bolinhas verticalmente */
+                word-break: break-all; /* Força a quebra de linha se faltar espaço */
+            }
+            </style>
+        """)
+    
+        # Cada bloco usa st.html para garantir que a quebra de linha fique presa no container
+        st.html(f"<div class='caixa-cor'>{linha_amarela_sex if linha_amarela_sex else 'Sem amarelas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_laranja_sex if linha_laranja_sex else 'Sem laranjas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_azul_sex if linha_azul_sex else 'Sem azuis'}</div>")
 
 # Somando as regiões
-
 sp_total_semana = valor1_seg_sp + valor1_ter_sp + valor1_qua_sp + valor1_qui_sp + valor1_sex_sp
 pr_total_semana = valor2_seg_pr + valor2_ter_pr + valor2_qua_pr + valor2_qui_pr + valor2_sex_pr
 outros_total_semana = valor3_seg_outros + valor3_ter_outros + valor3_qua_outros + valor3_qui_outros + valor3_sex_outros

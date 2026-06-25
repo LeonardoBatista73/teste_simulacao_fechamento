@@ -84,7 +84,7 @@ if "dados_restaurados" not in st.session_state:
         # restaura datas
         if chave.startswith("data_") and isinstance(valor, str):
             try:
-                from datetime import datetime
+                from time import time
                 valor = datetime.strptime(valor, "%Y-%m-%d").date()
             except:
                 pass
@@ -450,7 +450,7 @@ with col_seg:
 
     with col_data_seg:
         data_seg = st.date_input(
-            "",
+            ":date:",
             key="data_seg",
             format="DD/MM/YYYY",
             label_visibility="collapsed"

@@ -450,7 +450,7 @@ with col_seg:
 
     with col_data_seg:
         data_seg = st.date_input(
-            ":date:",
+            "🗓️",
             key="data_seg",
             format="DD/MM/YYYY",
             label_visibility="collapsed"

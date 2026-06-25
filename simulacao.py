@@ -523,17 +523,34 @@ with col_seg:
         linha_laranja = "🟧" * saldo_laranja_seg
         linha_azul = "🟦" * saldo_azul_seg
 
-        st.write('')
-        st.write('')
-        st.write(f"{linha_amarela}" if linha_amarela else "Sem amarelas")
-        st.write('')
-        st.write('')
-        st.write('')
-        st.write(f"{linha_laranja}" if  linha_laranja else "Sem laranjas")
-        st.write('')
-        st.write('')
-        st.write('')
-        st.write(f"{linha_azul}" if linha_azul else "Sem azuis")
+        #st.write('')
+        #st.write('')
+        #st.write(f"{linha_amarela}" if linha_amarela else "Sem amarelas")
+        #st.write('')
+        #st.write('')
+        #st.write('')
+        #st.write(f"{linha_laranja}" if  linha_laranja else "Sem laranjas")
+        #st.write('')
+        #st.write('')
+        #st.write('')
+        #st.write(f"{linha_azul}" if linha_azul else "Sem azuis")
+
+        # Estilo CSS para criar blocos isolados com altura fixa e alinhamento vertical
+        st.html("""
+            <style>
+            .caixa-cor {
+                height: 88px; /* Mesma altura do st.number_input */
+                display: flex;
+                align-items: center; /* Alinha o início das bolinhas verticalmente */
+                word-break: break-all; /* Força a quebra de linha se faltar espaço */
+            }
+            </style>
+        """)
+    
+        # Cada bloco usa st.html para garantir que a quebra de linha fique presa no container
+        st.html(f"<div class='caixa-cor'>{linha_amarela if linha_amarela else 'Sem amarelas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_laranja if linha_laranja else 'Sem laranjas'}</div>")
+        st.html(f"<div class='caixa-cor'>{linha_azul if linha_azul else 'Sem azuis'}</div>")
 
 # --- COLUNA: TERÇA-FEIRA ---
 with col_ter:

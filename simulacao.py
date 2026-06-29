@@ -417,17 +417,17 @@ def quantidade_por_volume(valor):
 
 if "bolinhas" not in st.session_state:
     st.session_state.bolinhas = {
-        "seg_dia": ["Vazio"] * qtd_dia(),
+        "seg_dia": ["Vazio"] * qtd_dia,
         "seg_noite": ["Vazio"] * qtd_noite(),
-        "ter_dia": ["Vazio"] * qtd_dia(),
+        "ter_dia": ["Vazio"] * qtd_dia,
         "ter_noite": ["Vazio"] * qtd_noite(),
-        "qua_dia": ["Vazio"] * qtd_dia(),
+        "qua_dia": ["Vazio"] * qtd_dia,
         "qua_noite": ["Vazio"] * qtd_noite(),
-        "qui_dia": ["Vazio"] * qtd_dia(),
+        "qui_dia": ["Vazio"] * qtd_dia,
         "qui_noite": ["Vazio"] * qtd_noite(),
-        "sex_dia": ["Vazio"] * qtd_dia(),
+        "sex_dia": ["Vazio"] * qtd_dia,
         "sex_noite": ["Vazio"] * qtd_noite(),
-        "sabado": ["Vazio"] * qtd_dia(),
+        "sabado": ["Vazio"] * qtd_dia,
         "sabado_noite": ["Vazio"] * qtd_noite()
     }
 

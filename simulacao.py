@@ -164,6 +164,10 @@ if "bolinhas" in st.session_state:
         "sabado_noite"
     ]:
 
+        # Se a chave não existir em bolinhas, inicializa como lista vazia
+        if chave not in st.session_state.bolinhas:
+            st.session_state.bolinhas[chave] = []
+            
         atual = st.session_state.bolinhas[chave]
 
         if len(atual) < qtd:
@@ -181,7 +185,11 @@ if "bolinhas" in st.session_state:
         "sex_dia",
         "sabado"
     ]:
-        
+
+        # Se a chave não existir em bolinhas, inicializa como lista vazia
+        if chave_dia not in st.session_state.bolinhas:
+            st.session_state.bolinhas[chave_dia] = []
+            
         atual_dia = st.session_state.bolinhas[chave_dia]
 
         if len(atual_dia) < qtd_dia:
